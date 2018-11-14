@@ -9,7 +9,7 @@ public class Application {
 	 * necessary for the application, for example:  
 	 * “jdbc:mysql://localhost:3306/CalendarApp?user=root&password=&useSSL=false”;
 	 */
-	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/TrackChanges?user=root&password=&useSSL=false";
+	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/TrackChangesDatabase?user=root&password=&useSSL=false";
 
 	// Classes:
 	/*
@@ -18,13 +18,6 @@ public class Application {
 	 * Database schema below and will be passed as the class required 
 	 * when parsing the JSON data from the front-end
 	 */
-	public class User {
-		
-	}
-	
-	public class Artist{
-		
-	}
 	
 	public class Album {
 		

@@ -2,9 +2,9 @@
 -- CSCI 201L TrackChanges 
 -- Database 
 */
-DROP DATABASE IF EXISTS TrackChanges;
-CREATE DATABASE TrackChanges;
-USE TrackChanges;
+DROP DATABASE IF EXISTS TrackChangesDatabase;
+CREATE DATABASE TrackChangesDatabase;
+USE TrackChangesDatabase;
 
 /* --------------------------- Users Data --------------------------- */
 /* Stores user's personal details */
@@ -36,6 +36,7 @@ CREATE TABLE Follow (
 );
 
 /* --------------------------- Album and Song Data --------------------------- */
+
 /* Stores the album id for identification */
 CREATE TABLE Album (
 	album_id VARCHAR(100) PRIMARY KEY,

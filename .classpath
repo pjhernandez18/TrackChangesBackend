@@ -9,5 +9,6 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="lib" path="json-simple.jar"/>
+	<classpathentry kind="lib" path="gson-2.8.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

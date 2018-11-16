@@ -1,5 +1,12 @@
 package trackchanges;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 public class Application {
 	
 	// Variables:
@@ -10,26 +17,6 @@ public class Application {
 	 * “jdbc:mysql://localhost:3306/CalendarApp?user=root&password=&useSSL=false”;
 	 */
 	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/TrackChangesDatabase?user=root&password=&useSSL=false";
-
-	// Classes:
-	/*
-	 * These classes will be a template for all the data we need 
-	 * to store for a user, song, post respectively as noted in the 
-	 * Database schema below and will be passed as the class required 
-	 * when parsing the JSON data from the front-end
-	 */
-	
-	public class Album {
-		
-	}
-	
-	public class Song {
-		
-	}
-
-	public class Post {
-		
-	}
 	
 	// Functions:
 	/*
@@ -41,7 +28,37 @@ public class Application {
 	 * added and “False” otherwise.
 	 */
 	private boolean addUser(User newUser) {
-		
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement("INSERT INTO User (user_id, user_login_timestamp, user_email, user_firstname, user_lastname, user_username, user_image_url, user_is_active) VALUES ('" + newUser.getUserId() + "', '" + newUser.getUserLogin() + "', '" + newUser.getUserEmail() + "', '" + newUser.getUserFirstName() + "', '" + newUser.getUserLastName() + "', '" + newUser.getUserUserName() + "', '" + newUser.getUserImageUrl() + "', '" + newUser.getUserIsActive() + "');");
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 	
 	/*
@@ -52,7 +69,37 @@ public class Application {
 	 * Function will return “True” if user is successfully updated and “False” otherwise.
 	 */
 	private boolean updateUser(User user) {
-		
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement("INSERT INTO User (user_id, user_login_timestamp, user_email, user_firstname, user_lastname, user_username, user_image_url, user_is_active) VALUES ('" + newUser.getUserId() + "', '" + newUser.getUserLogin() + "', '" + newUser.getUserEmail() + "', '" + newUser.getUserFirstName() + "', '" + newUser.getUserLastName() + "', '" + newUser.getUserUserName() + "', '" + newUser.getUserImageUrl() + "', '" + newUser.getUserIsActive() + "');");
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 	
 	/*

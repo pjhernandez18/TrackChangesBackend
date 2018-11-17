@@ -36,7 +36,24 @@ public class Application {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
-			ps = conn.prepareStatement("INSERT INTO User (user_id, user_login_timestamp, user_email, user_firstname, user_lastname, user_username, user_image_url, user_is_active) VALUES ('" + newUser.getUserId() + "', '" + newUser.getUserLogin() + "', '" + newUser.getUserEmail() + "', '" + newUser.getUserFirstName() + "', '" + newUser.getUserLastName() + "', '" + newUser.getUserUserName() + "', '" + newUser.getUserImageUrl() + "', '" + newUser.getUserIsActive() + "');");
+			ps = conn.prepareStatement(
+					"INSERT INTO User (user_id, "
+					+ "user_password, "
+					+ "user_login_timestamp, "
+					+ "user_email, user_firstname, "
+					+ "user_lastname, "
+					+ "user_username, "
+					+ "user_image_url, "
+					+ "user_is_active) VALUES ('" 
+					+ newUser.getUserId() + "', '" 
+					+ newUser.getUserPassword() + "', '" 
+					+ newUser.getUserLogin() + "', '" 
+					+ newUser.getUserEmail() + "', '" 
+					+ newUser.getUserFirstName() + "', '" 
+					+ newUser.getUserLastName() + "', '" 
+					+ newUser.getUserUserName() + "', '" 
+					+ newUser.getUserImageUrl() + "', '" 
+					+ newUser.getUserIsActive() + "');");
 			result = ps.execute();
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());
@@ -77,7 +94,27 @@ public class Application {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
-			ps = conn.prepareStatement("INSERT INTO User (user_id, user_login_timestamp, user_email, user_firstname, user_lastname, user_username, user_image_url, user_is_active) VALUES ('" + newUser.getUserId() + "', '" + newUser.getUserLogin() + "', '" + newUser.getUserEmail() + "', '" + newUser.getUserFirstName() + "', '" + newUser.getUserLastName() + "', '" + newUser.getUserUserName() + "', '" + newUser.getUserImageUrl() + "', '" + newUser.getUserIsActive() + "');");
+			ps = conn.prepareStatement(
+					"INSERT INTO User (user_id, "
+					+ "user_password, "
+					+ "user_login_timestamp, "
+					+ "user_email, user_firstname, "
+					+ "user_lastname, "
+					+ "user_username, "
+					+ "user_image_url, "
+					+ "user_is_active) VALUES ('" 
+					+ user.getUserId() + "', '" 
+					+ user.getUserPassword() + "', '" 
+					+ user.getUserLogin() + "', '" 
+					+ user.getUserEmail() + "', '" 
+					+ user.getUserFirstName() + "', '" 
+					+ user.getUserLastName() + "', '" 
+					+ user.getUserUserName() + "', '" 
+					+ user.getUserImageUrl() + "', '" 
+					+ user.getUserIsActive() + "') ON DUPLICATE KEY UPDATE " 
+					+ "user = '" + 
+					+ "', event_start = '" + eventsArr[i].getStart() 
+					+ "', event_end ='" + eventsArr[i].getEnd() + "'; ");
 			result = ps.execute();
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());
@@ -111,7 +148,57 @@ public class Application {
 	 * is successfully deactivated and “False” otherwise.
 	 */
 	private boolean deactivateUser(String user_id) {
-		
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"INSERT INTO User (user_id, "
+					+ "user_password, "
+					+ "user_login_timestamp, "
+					+ "user_email, user_firstname, "
+					+ "user_lastname, "
+					+ "user_username, "
+					+ "user_image_url, "
+					+ "user_is_active) VALUES ('" 
+					+ user.getUserId() + "', '" 
+					+ user.getUserPassword() + "', '" 
+					+ user.getUserLogin() + "', '" 
+					+ user.getUserEmail() + "', '" 
+					+ user.getUserFirstName() + "', '" 
+					+ user.getUserLastName() + "', '" 
+					+ user.getUserUserName() + "', '" 
+					+ user.getUserImageUrl() + "', '" 
+					+ user.getUserIsActive() + "') ON DUPLICATE KEY UPDATE " 
+					+ "user = '" + 
+					+ "', event_start = '" + eventsArr[i].getStart() 
+					+ "', event_end ='" + eventsArr[i].getEnd() + "'; ");
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 	
 	/*
@@ -364,11 +451,6 @@ public class Application {
 	 */
 	private boolean deletePost(String post_id) {
 		
-	}
-
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

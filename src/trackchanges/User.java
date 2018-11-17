@@ -9,6 +9,10 @@ public class User {
 	@Expose
 	private String user_id;
 	
+	@SerializedName("User_Password")
+	@Expose
+	private String user_password;
+	
 	@SerializedName("User_Login")
 	@Expose
 	private String user_login;
@@ -43,6 +47,14 @@ public class User {
 	
 	public void setUserId(String user_id) {
 		this.user_id = user_id;
+	}
+	
+	public String getUserPassword() {
+		return user_password;
+	}
+	
+	public void setUserPassword(String user_password) {
+		this.user_password = user_password;
 	}
 	
 	public String getUserLogin() {

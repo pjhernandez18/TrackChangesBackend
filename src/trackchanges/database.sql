@@ -10,7 +10,8 @@ USE TrackChangesDatabase;
 /* Stores user's personal details */
 CREATE TABLE User (
 	user_id VARCHAR(100) PRIMARY KEY,
-	user_login_timestamp TIMESTAMP NOT NULL,
+	-- user_login_timestamp TIMESTAMP NOT NULL, 
+    user_password VARCHAR(100) NOT NULL,
 	user_email VARCHAR(100) NOT NULL,
 	user_firstname VARCHAR(100) NOT NULL,
 	user_lastname VARCHAR(100) NOT NULL,

@@ -1,7 +1,6 @@
 package trackchanges;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,15 +13,16 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 @ServerEndpoint (value="/endpoint")
 public class WebSocketEndpoint {
 	
 	// Store users and their sessions in the map
 	private static final Map<String, Session> sessions = new HashMap<String, Session>();
-	private static ApplicationLayer application = new ApplicationLayer();
+	//private static ApplicationLayer application = new ApplicationLayer();
 	//private static Lock lock = new ReentrantLock();
 	// Set up logger for debugging
 	private static final Logger log = Logger.getLogger("TrackChanges");
@@ -44,30 +44,63 @@ public class WebSocketEndpoint {
 		 log.info("Connection closed by id: " + session.getId());
 	}
 	
+	public class Message{  
+		
+		@SerializedName("Message")
+		@Expose
+	
+		private String message;
+		public String getMessage() {
+			return message;
+		}
+		public void setMessage(String m) {
+			this.message = m; 
+		}
+	}
 //	//Called when a message is received by the client
 	
 	@OnMessage
 	public void onMessage (byte[] b, Session session) {
-		String printMe ="";
-		System.out.println("onMessage::From= " + session.getId() + "Message");
+		Gson gson = new Gson();
+		Message m = gson.fromJson(b.toString(), Message.class);
+		//String printMe ="";
+		System.out.println(m.getMessage());
+		
 		try {
-			printMe = new String(b, "US-ASCII");
-			
-		}catch(UnsupportedEncodingException uee) {
-			uee.printStackTrace();
-		}
-		JSONObject json = null;
-	
-		try {
-			json = new JSONObject("");
-		}catch(JSONException e) {
-			e.printStackTrace();
-		}
+          session.getBasicRemote().sendText("Hello Client " + session.getId() + "!");
+		 } catch (IOException e) {
+           e.printStackTrace();
+      }
+		
+
+		//System.out.println("onMessage::From= " + session.getId() + "Message");
+//		try {
+//			printMe = new String(b, "US-ASCII");
+//			
+//		}catch(UnsupportedEncodingException uee) {
+//			uee.printStackTrace();
+//		}
+//		JSONObject json = null;
+//	
+//		try {
+//			json = new JSONObject(printMe);
+//		}catch(JSONException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		try {
+//			if(json.get("message").equals("test")){
+//				System.out.println("JSON Recieved");
+//				
+//			}
+//		} catch (JSONException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		
-		application.parseJSON(json, session);
+		//application.parseJSON(json, session);
 		
-	
 	}
 	
 //  @OnMessage

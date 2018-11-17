@@ -2,6 +2,9 @@
     <wb-module deploy-name="TrackChangesBackend">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <dependent-module archiveName="org.json.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib//Users/pjhernandez/Dropbox/TrackChangesBackend/org.json.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="TrackChangesBackend"/>
         <property name="java-output-path" value="/TrackChangesBackend/bin"/>
     </wb-module>

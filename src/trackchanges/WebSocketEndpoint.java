@@ -1,9 +1,12 @@
 package trackchanges;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.websocket.OnClose;
@@ -13,9 +16,13 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import com.google.gson.Gson;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
+
+
+
 
 @ServerEndpoint (value="/endpoint")
 public class WebSocketEndpoint {
@@ -23,7 +30,7 @@ public class WebSocketEndpoint {
 	// Store users and their sessions in the map
 	private static final Map<String, Session> sessions = new HashMap<String, Session>();
 	//private static ApplicationLayer application = new ApplicationLayer();
-	//private static Lock lock = new ReentrantLock();
+	private static Lock lock = new ReentrantLock();
 	// Set up logger for debugging
 	private static final Logger log = Logger.getLogger("TrackChanges");
 	
@@ -31,76 +38,46 @@ public class WebSocketEndpoint {
 	//Called when swift client connects
    @OnOpen
     public void onOpen(Session session) {
+	lock.lock();
        System.out.println("onOpen::" + session.getId());        
 	   log.info("Connection openend by id: " + session.getId());
 	  // sessions.put(session.getId(), session);
+	   lock.unlock();
     }
    
   
 	//Called when a connection is closed
 	@OnClose
 	public void close(Session session) {
+		lock.lock();
 		 System.out.println("onClose:: " + session.getId());	
 		 log.info("Connection closed by id: " + session.getId());
+		 lock.unlock();
 	}
 	
-	public class Message{  
-		
-		@SerializedName("Message")
-		@Expose
-	
-		private String message;
-		public String getMessage() {
-			return message;
-		}
-		public void setMessage(String m) {
-			this.message = m; 
-		}
-	}
-//	//Called when a message is received by the client
 	
 	@OnMessage
 	public void onMessage (byte[] b, Session session) {
-		Gson gson = new Gson();
-		Message m = gson.fromJson(b.toString(), Message.class);
-		//String printMe ="";
-		System.out.println(m.getMessage());
-		
+		lock.lock();
+		String printMe="";
 		try {
-          session.getBasicRemote().sendText("Hello Client " + session.getId() + "!");
-		 } catch (IOException e) {
-           e.printStackTrace();
-      }
-		
+			printMe = new String(b, "US-ASCII");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		JSONObject json = null;
+		try {
+			json = new JSONObject(printMe);
+			if(json.get("message").equals("test")){
+				
+				System.out.println("JSON Recieved");
+				
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 
-		//System.out.println("onMessage::From= " + session.getId() + "Message");
-//		try {
-//			printMe = new String(b, "US-ASCII");
-//			
-//		}catch(UnsupportedEncodingException uee) {
-//			uee.printStackTrace();
-//		}
-//		JSONObject json = null;
-//	
-//		try {
-//			json = new JSONObject(printMe);
-//		}catch(JSONException e) {
-//			e.printStackTrace();
-//		}
-//		
-//		try {
-//			if(json.get("message").equals("test")){
-//				System.out.println("JSON Recieved");
-//				
-//			}
-//		} catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-		
-		//application.parseJSON(json, session);
-		
+		lock.unlock();
 	}
 	
 //  @OnMessage
@@ -114,7 +91,7 @@ public class WebSocketEndpoint {
 //        }
 //    }
   
-  //Called when an error for this endpoint occurred
+//Called when an error for this endpoint occurred
    @OnError
     public void onError(Throwable e) {
        System.out.println("onError::" + e.getMessage());
@@ -132,7 +109,7 @@ public class WebSocketEndpoint {
 	   }
 	   
    }
-//   
+   
 //   public void sendToAllSessions(Session session, byte[] data) {
 //	 
 //	   lock.lock();

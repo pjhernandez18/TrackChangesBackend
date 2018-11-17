@@ -9,24 +9,24 @@ public class Song {
 	@Expose
 	private String song_id;
 	
-	@SerializedName("Artist_Id")
-	@Expose
-	private String artist_id;
+//	@SerializedName("Artist_Id")
+//	@Expose
+//	private String artist_id;
 	
 	public String getSongId() {
-		return artist_id;
+		return song_id;
 	}
 	
 	public void setSongId(String song_id) {
 		this.song_id = song_id;
 	}
 	
-	public String getArtistId() {
-		return artist_id;
-	}
-	
-	public void setArtistId(String artist_id) {
-		this.artist_id = artist_id;
-	}
+//	public String getArtistId() {
+//		return artist_id;
+//	}
+//	
+//	public void setArtistId(String artist_id) {
+//		this.artist_id = artist_id;
+//	}
 	
 }

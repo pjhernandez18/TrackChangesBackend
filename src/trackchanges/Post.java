@@ -21,6 +21,14 @@ public class Post {
 	@Expose
 	private String post_message;
 	
+	@SerializedName("Post_Song")
+	@Expose
+	private String post_songId;
+	
+	@SerializedName("Post_Album")
+	@Expose
+	private String post_albumId;
+	
 	public String getPostId() {
 		return post_id;
 	}
@@ -51,6 +59,22 @@ public class Post {
 	
 	public void setPostMessage(String post_message) {
 		this.post_message = post_message;
+	}
+	
+	public String getPostSongId() {
+		return post_message;
+	}
+	
+	public void setPostSongId(String post_songId) {
+		this.post_songId = post_songId;
+	}
+	
+	public String getPostAlbumId() {
+		return post_albumId;
+	}
+	
+	public void setPostAlbumId(String post_albumId) {
+		this.post_albumId = post_albumId;
 	}
 	
 }

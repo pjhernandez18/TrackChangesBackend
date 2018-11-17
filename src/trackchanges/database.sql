@@ -21,11 +21,11 @@ CREATE TABLE User (
 );
 
 /* Stores the artist's personal details */
-CREATE TABLE Artist (
-	artist_id VARCHAR(100) PRIMARY KEY,
-	artist_firstname VARCHAR(100) NOT NULL,
-	artist_lastname VARCHAR(100) NOT NULL
-);
+-- CREATE TABLE Artist (
+-- 	artist_id VARCHAR(100) PRIMARY KEY,
+-- 	artist_firstname VARCHAR(100) NOT NULL,
+-- 	artist_lastname VARCHAR(100) NOT NULL
+-- );
            
 /* Stores followers / following relationship */
 CREATE TABLE Follow (
@@ -40,26 +40,26 @@ CREATE TABLE Follow (
 
 /* Stores the album id for identification */
 CREATE TABLE Album (
-	album_id VARCHAR(100) PRIMARY KEY,
-	artist_id VARCHAR(100) NOT NULL,
-	FOREIGN KEY Album_artist_id (artist_id) REFERENCES Artist(artist_id)
+	album_id VARCHAR(100) PRIMARY KEY
+	-- artist_id VARCHAR(100) NOT NULL,
+-- 	FOREIGN KEY Album_artist_id (artist_id) REFERENCES Artist(artist_id)
 );
 
 /* Stores the song id to uniquely identify the song */
 CREATE TABLE Song (
-	song_id VARCHAR(100) PRIMARY KEY,
-	artist_id VARCHAR(100) NOT NULL,
-	FOREIGN KEY Song_artist_id (artist_id) REFERENCES Artist(artist_id)
+	song_id VARCHAR(100) PRIMARY KEY
+	-- artist_id VARCHAR(100) NOT NULL,
+-- 	FOREIGN KEY Song_artist_id (artist_id) REFERENCES Artist(artist_id)
 );
 
 /* Stores which songs are included inside an album */
-CREATE TABLE AlbumSong (
-	album_id VARCHAR(100) NOT NULL,
-	song_id VARCHAR(100) NOT NULL,
-	PRIMARY KEY (album_id, song_id),
-	FOREIGN KEY AlbumSong_album_id (album_id) REFERENCES Album(album_id),
-	FOREIGN KEY AlbumSong_song_id (song_id) REFERENCES Song(song_id)
-);
+-- CREATE TABLE AlbumSong (
+-- 	album_id VARCHAR(100) NOT NULL,
+-- 	song_id VARCHAR(100) NOT NULL,
+-- 	PRIMARY KEY (album_id, song_id),
+-- 	FOREIGN KEY AlbumSong_album_id (album_id) REFERENCES Album(album_id),
+-- 	FOREIGN KEY AlbumSong_song_id (song_id) REFERENCES Song(song_id)
+-- );
 
 /* Tracks which users like which songs */
 CREATE TABLE SongLike (

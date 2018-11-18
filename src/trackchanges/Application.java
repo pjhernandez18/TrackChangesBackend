@@ -46,13 +46,12 @@ public class Application {
 					+ "user_id, "
 					+ "user_displayname, "
 					+ "user_logintimestamp, "
-					+ "user_imageurl, "
-					+ "user_isactive) VALUES ('" 
+					+ "user_imageurl"
+					+ ") VALUES ('" 
 					+ newUser.getUserId() + "', '"
 					+ newUser.getUserDisplayName() + "', '"
 					+ newUser.getUserLoginTimeStamp() + "', '"
-					+ newUser.getUserImageUrl() + "', '"
-					+ newUser.getUserIsActive() 
+					+ newUser.getUserImageUrl()
 					+ "');");
 			result = ps.execute();
 		} catch (SQLException sqle) {
@@ -183,15 +182,12 @@ public class Application {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			// not sure how to delete based off two parameters
-			ps = conn.prepareStatement(
-					"SELECT * from Follow WHERE user_id LIKE?");
-			ps.setString(1, "%" + user_id + "%");
-	    	  
-	    	  rs = ps.executeQuery();
-	    	  while(rs.next()){
-	    		  String tempFollower = rs.getString("follower_id");
-	    		  tempRes.add(tempFollower);
-	    	  }
+			ps = conn.prepareStatement("SELECT f.follower_id FROM Follow f WHERE f.user_id = '" + user_id + "';");
+			rs = ps.executeQuery();
+			while(rs.next()){
+				String tempFollower = rs.getString("follower_id");
+				tempRes.add(tempFollower);
+			}
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());
 		} catch (ClassNotFoundException cnfe) {

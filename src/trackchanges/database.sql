@@ -12,8 +12,7 @@ CREATE TABLE User (
 	user_id VARCHAR(100) PRIMARY KEY,
 	user_displayname VARCHAR(100) NOT NULL,
 	user_imageurl VARCHAR(500) NOT NULL,
-    user_logintimestamp VARCHAR(100) NOT NULL,
-    user_isactive boolean NOT NULL
+    user_logintimestamp VARCHAR(100) NOT NULL
 );
 
 /* Stores followers / following relationship */

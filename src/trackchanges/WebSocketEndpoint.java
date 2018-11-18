@@ -50,10 +50,11 @@ public class WebSocketEndpoint {
 			JSONObject json = (JSONObject) parser.parse(parsedJson);
 			String request = (String) json.get("request");
 			System.out.println("Decoded Json:");
-			System.out.println(json.get("id"));
-			System.out.println(json.get("displayname"));
-			System.out.println(json.get("logintimestamp"));
-			System.out.println(json.get("imageurl"));
+			System.out.println(request);
+//			System.out.println(json.get("id"));
+//			System.out.println(json.get("displayname"));
+//			System.out.println(json.get("logintimestamp"));
+//			System.out.println(json.get("imageurl"));
 			
 			// Sends request and body to handler to call Application.jaa functions
 			parseSuccess = handleRequest(request, json, session);
@@ -88,7 +89,6 @@ public class WebSocketEndpoint {
 			newUser.setUserDisplayName((String)json.get("displayname"));
 			newUser.setUserImageUrl((String)json.get("imageurl"));
 			newUser.setUserLoginTimeStamp((String)json.get("logintimestamp"));
-			newUser.setUserIsActive(true);
 			handleSuccess = app.addUser(newUser);
 			
 		} else if(request.equals("follow")) {
@@ -107,6 +107,9 @@ public class WebSocketEndpoint {
 			
 			String user_id = (String)json.get("user_id");
 			String[] followers = app.getFollowers(user_id);
+			for(String follower : followers) {
+				System.out.println(follower);
+			}
 			JSONArray jsonFollowersArray = new JSONArray();
 			for(String follower : followers) {
 				jsonFollowersArray.add(follower);

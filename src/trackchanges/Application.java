@@ -172,7 +172,7 @@ public class Application {
 	 * a minimum level of error handling. Function will return an array of â€œuser_idâ€�(s) 
 	 * corresponding to each follower. Size of array will be the number of followers a user has.
 	 */
-	public ArrayList<String> getFollowers(String user_id) {
+	public ArrayList<User> getFollowers(String user_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -181,63 +181,11 @@ public class Application {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
-			// not sure how to delete based off two parameters
 			ps = conn.prepareStatement("SELECT f.follower_id FROM Follow f WHERE f.user_id = '" + user_id + "';");
 			rs = ps.executeQuery();
 			while(rs.next()){
 				result.add(rs.getString("follower_id"));
-				System.out.println(rs.getString("follower_id"));
 			}
-		} catch (SQLException sqle) {
-			System.out.println("sqle: " + sqle.getMessage());
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("cnfe: " + cnfe.getMessage());
-		} finally {
-			// You always need to close the connection to the database
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (st != null) {
-					st.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch(SQLException sqle) {
-				System.out.println("sqle closing error: " + sqle.getMessage());
-			}
-		}
-		return result;
-	}
-
-	/*
-	 * This function will be responsible for retrieving all the users that the current 
-	 * user is following using the â€œSELECTâ€� statement after a connection using the JDBC 
-	 * DriverManager is established. Deletion will also be surrounded by Try, Catch blocks 
-	 * to ensure a minimum level of error handling. Function will return an array of â€œuser_idâ€�(s) 
-	 * corresponding to each user the current user is following. Size of array will be the 
-	 * number of users the user specified is following.
-	 */
-	public String[] getFollowing(String user_id) {
-		Connection conn = null;
-		Statement st = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		ArrayList<String> tempRes = new ArrayList<String>(); 
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
-			// not sure how to delete based off two parameters
-			ps = conn.prepareStatement(
-					"SELECT * from Follow WHERE follower_id LIKE?");
-			ps.setString(1, "%" + user_id + "%");
-	    	  
-	    	  rs = ps.executeQuery();
-	    	  while(rs.next()){
-	    		  String tempFollower = rs.getString("user_id");
-	    		  tempRes.add(tempFollower);
-	    	  }
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());
 		} catch (ClassNotFoundException cnfe) {
@@ -259,11 +207,139 @@ public class Application {
 			}
 		}
 		
-		String [] res = new String[tempRes.size()];
-		for(int i = 0; i < tempRes.size(); ++i) {
-			res[i] = tempRes.get(i);
+		ArrayList<User> followers = new ArrayList<User>();
+		for(String follower : result) {
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+				conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+				ps = conn.prepareStatement("SELECT "
+						+ "u.user_id, "
+						+ "u.user_displayname, "
+						+ "u.user_imageurl, "
+						+ "u.user_logintimestamp "
+						+ "FROM User u "
+						+ "WHERE u.user_id = '" + follower + "';");
+				rs = ps.executeQuery();
+				while(rs.next()){
+					User followerUser = new User();
+					followerUser.setUserId(rs.getString("user_id"));
+					followerUser.setUserDisplayName(rs.getString("user_displayname"));
+					followerUser.setUserImageUrl(rs.getString("user_imageurl"));
+					followerUser.setUserLoginTimeStamp(rs.getString("user_logintimestamp"));
+					followers.add(followerUser);
+				}
+			} catch (SQLException sqle) {
+				System.out.println("sqle: " + sqle.getMessage());
+			} catch (ClassNotFoundException cnfe) {
+				System.out.println("cnfe: " + cnfe.getMessage());
+			} finally {
+				// You always need to close the connection to the database
+				try {
+					if (rs != null) {
+						rs.close();
+					}
+					if (st != null) {
+						st.close();
+					}
+					if (conn != null) {
+						conn.close();
+					}
+				} catch(SQLException sqle) {
+					System.out.println("sqle closing error: " + sqle.getMessage());
+				}
+			}
 		}
-		return res;
+		
+		return followers;
+	}
+
+	/*
+	 * This function will be responsible for retrieving all the users that the current 
+	 * user is following using the â€œSELECTâ€� statement after a connection using the JDBC 
+	 * DriverManager is established. Deletion will also be surrounded by Try, Catch blocks 
+	 * to ensure a minimum level of error handling. Function will return an array of â€œuser_idâ€�(s) 
+	 * corresponding to each user the current user is following. Size of array will be the 
+	 * number of users the user specified is following.
+	 */
+	public ArrayList<User> getFollowings(String user_id) {
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		ArrayList<String> result = new ArrayList<String>(); 
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement("SELECT f.user_id FROM Follow f WHERE f.follower_id = '" + user_id + "';");
+			rs = ps.executeQuery();
+			while(rs.next()){
+				result.add(rs.getString("user_id"));
+			}
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		
+		ArrayList<User> followings = new ArrayList<User>();
+		for(String following : result) {
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+				conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+				ps = conn.prepareStatement("SELECT "
+						+ "u.user_id, "
+						+ "u.user_displayname, "
+						+ "u.user_imageurl, "
+						+ "u.user_logintimestamp "
+						+ "FROM User u "
+						+ "WHERE u.user_id = '" + following + "';");
+				rs = ps.executeQuery();
+				while(rs.next()){
+					User followingUser = new User();
+					followingUser.setUserId(rs.getString("user_id"));
+					followingUser.setUserDisplayName(rs.getString("user_displayname"));
+					followingUser.setUserImageUrl(rs.getString("user_imageurl"));
+					followingUser.setUserLoginTimeStamp(rs.getString("user_logintimestamp"));
+					followings.add(followingUser);
+				}
+			} catch (SQLException sqle) {
+				System.out.println("sqle: " + sqle.getMessage());
+			} catch (ClassNotFoundException cnfe) {
+				System.out.println("cnfe: " + cnfe.getMessage());
+			} finally {
+				// You always need to close the connection to the database
+				try {
+					if (rs != null) {
+						rs.close();
+					}
+					if (st != null) {
+						st.close();
+					}
+					if (conn != null) {
+						conn.close();
+					}
+				} catch(SQLException sqle) {
+					System.out.println("sqle closing error: " + sqle.getMessage());
+				}
+			}
+		}
+		
+		return followings;
 	}
 
 	/*
@@ -914,7 +990,7 @@ public class Application {
 	 * Try, Catch blocks to ensure a minimum level of error handling. Function will return 
 	 * â€œTrueâ€� if addition is successful and â€œFalseâ€� otherwise.
 	 */
-	public boolean sharePost(String post_id, String user_id, DateTime timeStamp) {
+	public boolean sharePost(String post_id, String user_id, String timeStamp) {
 		// ? look at this
 
 		// time stamp needs to figured out here

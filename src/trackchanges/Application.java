@@ -77,218 +77,6 @@ public class Application {
 		}
 		return result;
 	}
-	
-	/*
-	 * This function will be responsible for updating an existing user 
-	 * in the database with “UPDATE” statements after a connection using 
-	 * the JDBC DriverManager is established. Update will also be surrounded 
-	 * by Try, Catch blocks to ensure a minimum level of error handling. 
-	 * Function will return “True” if user is successfully updated and “False” otherwise.
-	 */
-	private boolean updateUser(User user) {
-		Connection conn = null;
-		Statement st = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		boolean result = false;
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
-			ps = conn.prepareStatement(
-					"UPDATE User SET "
-					+ "user_id=" + user.getUserId()
-					+ ", user_displayname=" + user.getUserDisplayName()
-					+ ", user_logintimestamp=" + user.getUserLoginTimeStamp().toString()
-					+ ", user_imageurl=" + user.getUserImageUrl()
-					+ ", user_is_active=" +  user.getUserIsActive()
-					+ " WHERE user_id=" + user.getUserId());
-			result = ps.execute();
-		} catch (SQLException sqle) {
-			System.out.println("sqle: " + sqle.getMessage());
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("cnfe: " + cnfe.getMessage());
-		} finally {
-			// You always need to close the connection to the database
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (st != null) {
-					st.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch(SQLException sqle) {
-				System.out.println("sqle closing error: " + sqle.getMessage());
-			}
-		}
-		return result;
-	}
-	
-	/*
-	 * This function will be responsible for deactivating existing users 
-	 * in the database by setting “user_is_active” to “False” after a 
-	 * connection using the JDBC DriverManager is established. 
-	 * Deactivation will also be surrounded by Try, Catch blocks to ensure a 
-	 * minimum level of error handling. Function will return “True” if user 
-	 * is successfully deactivated and “False” otherwise.
-	 */
-	private boolean deactivateUser(String user_id) {
-		Connection conn = null;
-		Statement st = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		boolean result = false;
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
-			ps = conn.prepareStatement(
-					"UPDATE User SET user_is_active=false WHERE user_id="+user_id);
-					
-			result = ps.execute();
-		} catch (SQLException sqle) {
-			System.out.println("sqle: " + sqle.getMessage());
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("cnfe: " + cnfe.getMessage());
-		} finally {
-			// You always need to close the connection to the database
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (st != null) {
-					st.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch(SQLException sqle) {
-				System.out.println("sqle closing error: " + sqle.getMessage());
-			}
-		}
-		return result;
-	}
-	
-	/*
-	 * This function will be responsible for deleting existing users from 
-	 * the database permanently using the “DELETE” statement after a connection 
-	 * using the JDBC DriverManager is established. Deletion will also be 
-	 * surrounded by Try, Catch blocks to ensure a minimum level of error handling. 
-	 * Function will return “True” if user is successfully deleted and “False” otherwise.
-	 */
-	private boolean deleteUser(String user_id) {
-		Connection conn = null;
-		Statement st = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		boolean result = false;
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
-			ps = conn.prepareStatement(
-					"DELETE FROM User WHERE user_id=?");
-			ps.setString(1,  user_id);
-			result = ps.execute();
-			
-			// user won't necessarily have rows in these following tables
-			// so the value of result won't be dependent on successful execute()
-			ps = conn.prepareStatement(
-					"DELETE FROM Follow WHERE user_id=?");
-			ps.setString(1,  user_id);
-			ps.execute();
-			
-			ps = conn.prepareStatement(
-					"DELETE FROM SongLike WHERE user_id=?");
-			ps.setString(1,  user_id);
-			ps.execute();
-			
-			ps = conn.prepareStatement(
-					"DELETE FROM Post WHERE user_id=?");
-			ps.setString(1,  user_id);
-			ps.execute();
-			
-			ps = conn.prepareStatement(
-					"DELETE FROM PostShare WHERE user_id=?");
-			ps.setString(1,  user_id);
-			ps.execute();
-			
-			ps = conn.prepareStatement(
-					"DELETE FROM PostLike WHERE user_id=?");
-			ps.setString(1,  user_id);
-			ps.execute();
-			
-			ps = conn.prepareStatement(
-					"DELETE FROM PostAlbum WHERE user_id=?");
-			ps.setString(1,  user_id);
-			ps.execute();
-			
-			ps = conn.prepareStatement(
-					"DELETE FROM PostSong WHERE user_id=?");
-			ps.setString(1,  user_id);
-			ps.execute();
-			
-			
-			
-		} catch (SQLException sqle) {
-			System.out.println("sqle: " + sqle.getMessage());
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("cnfe: " + cnfe.getMessage());
-		} finally {
-			// You always need to close the connection to the database
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (st != null) {
-					st.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch(SQLException sqle) {
-				System.out.println("sqle closing error: " + sqle.getMessage());
-			}
-		}
-		return result;
-	}
-	
-	// TBD
-	/*
-	/*
-	 * This function will be responsible for adding new artists into the database 
-	 * with “INSERT” statements after a connection using the JDBC DriverManager 
-	 * is established. Insertion will also be surrounded by Try, Catch blocks to 
-	 * ensure a minimum level of error handling. Function will return “True” if 
-	 * user is successfully added and “False” otherwise.
-	 */
-	private boolean addArtist(Artist newArtist) {
-		return false;
-	}
-
-	/*
-	 * This function will be responsible for updating an existing artist in 
-	 * the database with “UPDATE” statements after a connection using the JDBC 
-	 * DriverManager is established. Update will also be surrounded by Try, 
-	 * Catch blocks to ensure a minimum level of error handling. Function will 
-	 * return “True” if user is successfully updated and “False” otherwise.
-	 */
-	private boolean updateArtist(Artist artist) {
-		return false;
-	}
-
-	/*
-	 * This function will be responsible for deleting existing artists, along 
-	 * with all their albums, songs, and all posts that included those albums 
-	 * and songs from the database permanently using the “DELETE” statement after 
-	 * a connection using the JDBC DriverManager is established. Deletion will 
-	 * also be surrounded by Try, Catch blocks to ensure a minimum level of error 
-	 * handling. Function will return “True” if artist is successfully deleted 
-	 * and “False” otherwise.
-	 */
-	private boolean deleteArtist(String artist_id) {
-		return false;
-	}
 
 	/*
 	 * This function will be responsible for adding a new follower relationship 
@@ -297,7 +85,7 @@ public class Application {
 	 * Catch blocks to ensure a minimum level of error handling. Function will return 
 	 * “True” if follower is successfully added and “False” otherwise.
 	 */
-	private boolean follow(String user_id, String follower_id) {
+	public boolean follow(String user_id, String follower_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -337,12 +125,12 @@ public class Application {
 
 	/*
 	 * This function will be responsible for deleting a follower relationship permanently 
-	 * using the “DELETE” statement after a connection using the JDBC DriverManager is 
+	 * using the â€œDELETEâ€� statement after a connection using the JDBC DriverManager is 
 	 * established. Deletion will also be surrounded by Try, Catch blocks to ensure a 
-	 * minimum level of error handling. Function will return “True” if relationship is 
-	 * successfully deleted and “False” otherwise.
+	 * minimum level of error handling. Function will return â€œTrueâ€� if relationship is 
+	 * successfully deleted and â€œFalseâ€� otherwise.
 	 */
-	private boolean unfollow(String user_id, String follower_id) {
+	public boolean unfollow(String user_id, String follower_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -380,12 +168,12 @@ public class Application {
 
 	/*
 	 * This function will be responsible for retrieving all the followers of a user 
-	 * using the “SELECT” statement after a connection using the JDBC DriverManager 
+	 * using the â€œSELECTâ€� statement after a connection using the JDBC DriverManager 
 	 * is established. Deletion will also be surrounded by Try, Catch blocks to ensure 
-	 * a minimum level of error handling. Function will return an array of “user_id”(s) 
+	 * a minimum level of error handling. Function will return an array of â€œuser_idâ€�(s) 
 	 * corresponding to each follower. Size of array will be the number of followers a user has.
 	 */
-	private String[] getFollowers(String user_id) {
+	public String[] getFollowers(String user_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -434,13 +222,13 @@ public class Application {
 
 	/*
 	 * This function will be responsible for retrieving all the users that the current 
-	 * user is following using the “SELECT” statement after a connection using the JDBC 
+	 * user is following using the â€œSELECTâ€� statement after a connection using the JDBC 
 	 * DriverManager is established. Deletion will also be surrounded by Try, Catch blocks 
-	 * to ensure a minimum level of error handling. Function will return an array of “user_id”(s) 
+	 * to ensure a minimum level of error handling. Function will return an array of â€œuser_idâ€�(s) 
 	 * corresponding to each user the current user is following. Size of array will be the 
 	 * number of users the user specified is following.
 	 */
-	private String[] getFollowing(String user_id) {
+	public String[] getFollowing(String user_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -489,12 +277,12 @@ public class Application {
 
 	/*
 	 * This function will be responsible for adding new albums, album artist(s), and 
-	 * all the songs in it  into the database with “INSERT” statements after a connection 
+	 * all the songs in it  into the database with â€œINSERTâ€� statements after a connection 
 	 * using the JDBC DriverManager is established. Insertion will also be surrounded by 
 	 * Try, Catch blocks to ensure a minimum level of error handling. Function will return 
-	 * “True” if album is successfully added and “False” otherwise.
+	 * â€œTrueâ€� if album is successfully added and â€œFalseâ€� otherwise.
 	 */
-	private boolean addAlbum(String album_id) {
+	public boolean addAlbum(String album_id) {
 		
 		Connection conn = null;
 		Statement st = null;
@@ -532,12 +320,12 @@ public class Application {
 	/*
 	 * This function will be responsible for deleting existing albums, and all posts that 
 	 * included those albums and the songs inside the album from the database permanently 
-	 * using the “DELETE” statement after a connection using the JDBC DriverManager is 
+	 * using the â€œDELETEâ€� statement after a connection using the JDBC DriverManager is 
 	 * established. Deletion will also be surrounded by Try, Catch blocks to ensure a 
-	 * minimum level of error handling. Function will return “True” if album is successfully 
-	 * deleted and “False” otherwise.
+	 * minimum level of error handling. Function will return â€œTrueâ€� if album is successfully 
+	 * deleted and â€œFalseâ€� otherwise.
 	 */
-	private boolean deleteAlbum(String album_id) {
+	public boolean deleteAlbum(String album_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -583,13 +371,13 @@ public class Application {
 
 	/*
 	 * This function will be responsible for adding new songs and its corresponding artist(s), 
-	 * as well as the updating the “AlbumSong” relationship (storing the fact that the song 
-	 * belongs to the album whose “album_id” is specified) in the database with “INSERT” 
+	 * as well as the updating the â€œAlbumSongâ€� relationship (storing the fact that the song 
+	 * belongs to the album whose â€œalbum_idâ€� is specified) in the database with â€œINSERTâ€� 
 	 * statements after a connection using the JDBC DriverManager is established. Insertion 
 	 * will also be surrounded by Try, Catch blocks to ensure a minimum level of error 
-	 * handling. Function will return “True” if song is successfully added and “False” otherwise.
+	 * handling. Function will return â€œTrueâ€� if song is successfully added and â€œFalseâ€� otherwise.
 	 */
-	private boolean addSong(String song_id) {
+	public boolean addSong(String song_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -623,26 +411,15 @@ public class Application {
 		return result;
 	}
 
-	/*
-	 * This function will be responsible for adding new songs and its corresponding artist(s) 
-	 * into the database with “INSERT” statements after a connection using the JDBC 
-	 * DriverManager is established. Insertion will also be surrounded by Try, Catch 
-	 * blocks to ensure a minimum level of error handling. Function will return “True” 
-	 * if song is successfully added and “False” otherwise.
-	 */
-	private boolean addSong(Song newSong) {
-		// dont need this anymore?
-		return false;
-	}
 
 	/*
 	 * This function will be responsible for tracking which users like a particular song 
-	 * in the database with “INSERT” statements to the “AlbumSong” table after a connection 
+	 * in the database with â€œINSERTâ€� statements to the â€œAlbumSongâ€� table after a connection 
 	 * using the JDBC DriverManager is established. Insertion will also be surrounded by 
 	 * Try, Catch blocks to ensure a minimum level of error handling. Function will return 
-	 * “True” if addition is successful and “False” otherwise.
+	 * â€œTrueâ€� if addition is successful and â€œFalseâ€� otherwise.
 	 */
-	private boolean likeSong(String song_id, String user_id) {
+	public boolean likeSong(String song_id, String user_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -684,12 +461,12 @@ public class Application {
 
 	/*
 	 * This function will be responsible for deleting the relationship of the user liking 
-	 * the song permanently using the “DELETE” statement after a connection using the JDBC 
+	 * the song permanently using the â€œDELETEâ€� statement after a connection using the JDBC 
 	 * DriverManager is established. Deletion will also be surrounded by Try, Catch blocks 
-	 * to ensure a minimum level of error handling. Function will return “True” if 
-	 * relationship is successfully deleted and “False” otherwise.
+	 * to ensure a minimum level of error handling. Function will return â€œTrueâ€� if 
+	 * relationship is successfully deleted and â€œFalseâ€� otherwise.
 	 */
-	private boolean unlikeSong(String song_id, String user_id) {
+	public boolean unlikeSong(String song_id, String user_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -726,14 +503,14 @@ public class Application {
 	}
 
 	/*
-	 * This function will be responsible for deleting existing songs, the “AlbumSong” 
+	 * This function will be responsible for deleting existing songs, the â€œAlbumSongâ€� 
 	 * relationships,and all posts that included those songs inside the album from the 
-	 * database permanently using the “DELETE” statement after a connection using the JDBC 
+	 * database permanently using the â€œDELETEâ€� statement after a connection using the JDBC 
 	 * DriverManager is established. Deletion will also be surrounded by Try, Catch blocks 
-	 * to ensure a minimum level of error handling. Function will return “True” if song is 
-	 * successfully deleted and “False” otherwise.
+	 * to ensure a minimum level of error handling. Function will return â€œTrueâ€� if song is 
+	 * successfully deleted and â€œFalseâ€� otherwise.
 	 */
-	private boolean deleteSong(String song_id) {
+	public boolean deleteSong(String song_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -782,13 +559,13 @@ public class Application {
 
 	/*
 	 * This function will be responsible for adding a new post in the database with 
-	 * “INSERT” statements after a connection using the JDBC DriverManager is 
-	 * established (and also updates the “PostAlbum” or “PostSong” table if required). 
+	 * â€œINSERTâ€� statements after a connection using the JDBC DriverManager is 
+	 * established (and also updates the â€œPostAlbumâ€� or â€œPostSongâ€� table if required). 
 	 * Insertion will also be surrounded by Try, Catch blocks to ensure a minimum level 
-	 * of error handling. Function will return “True” if post is successfully added and 
-	 * “False” otherwise.
+	 * of error handling. Function will return â€œTrueâ€� if post is successfully added and 
+	 * â€œFalseâ€� otherwise.
 	 */
-	private boolean addPost(Post newPost) {
+	public boolean addPost(Post newPost) {
 		// time stamp needs to figured out here
 		Connection conn = null;
 		Statement st = null;
@@ -807,7 +584,7 @@ public class Application {
 					+ "post_message) VALUES ('" 
 					
 					+ newPost.getPostId() + "', '" 
-					+ newPost.getPostTimestamp().toString() + "', '" 
+					+ newPost.getPostTimeStamp().toString() + "', '" 
 					
 					+ newPost.getPostUserId() + "', '" 
 					
@@ -815,7 +592,7 @@ public class Application {
 			result = ps.execute();
 			
 			// insert into post song id table
-			if(newPost.getPostSongId != null) {
+			if(newPost.getPostSongId() != null) {
 				ps = conn.prepareStatement("INSERT INTO PostSong(song_id, "
 						+ "post_id) VALUES ('"
 						+ newPost.getPostSongId() + "', '" 
@@ -856,12 +633,12 @@ public class Application {
 
 	/*
 	 * This function will be responsible for retrieving the posts from the database 
-	 * with “SELECT” statements after a connection using the JDBC DriverManager is 
+	 * with â€œSELECTâ€� statements after a connection using the JDBC DriverManager is 
 	 * established. Retrieval will also be surrounded by Try, Catch blocks to ensure 
 	 * a minimum level of error handling. Function will return an array of Post objects 
 	 * and null if no posts are found.
 	 */
-	private Post[] getPosts(String user_id) {
+	public Post[] getPosts(String user_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -884,10 +661,10 @@ public class Application {
 	    		  String tempUserId = rs.getString("user_id");
 	    		  String tempPostMessage = rs.getString("post_message");
 	    		  
-	    		  tempPost.setPostID(tempPostId);
-	    		  tempPost.setPostTimeStamp(new DateTime(tempPostTimeStamp));
+	    		  tempPost.setPostId(tempPostId);
+	    		  tempPost.setPostTimeStamp(tempPostTimeStamp);
 	    		  tempPost.setPostUserId(tempUserId);
-	    		  tempRes.setPostMessage(tempPostMessage);
+	    		  tempPost.setPostMessage(tempPostMessage);
 	    		  
 	    		  PreparedStatement ps2 = conn.prepareStatement(
 	    				  "SELECT * from PostAlbum WHERE user_id LIKE?");
@@ -944,18 +721,18 @@ public class Application {
 
 	/*
 	 * This function will be responsible for retrieving the posts from the users 
-	 * that the user specified is following through the database with “SELECT” 
+	 * that the user specified is following through the database with â€œSELECTâ€� 
 	 * statements after a connection using the JDBC DriverManager is established. 
 	 * Retrieval will also be surrounded by Try, Catch blocks to ensure a minimum 
 	 * level of error handling. Function will return an array of Post objects and 
 	 * null if no posts are found.
 	 */
-	private Post[] getFeed(String user_id) {
+	public Post[] getFeed(String user_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
 		PreparedStatement ps = null;
-		ArrayList<Post> tempRes = new ArrayList<String>(); 
+		ArrayList<Post> tempRes = new ArrayList<Post>(); 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
@@ -989,10 +766,10 @@ public class Application {
 		    		  String tempUserId = rs.getString("user_id");
 		    		  String tempPostMessage = rs.getString("post_message");
 		    		  
-		    		  tempPost.setPostID(tempPostId);
-		    		  tempPost.setPostTimeStamp(new DateTime(tempPostTimeStamp));
+		    		  tempPost.setPostId(tempPostId);
+		    		  tempPost.setPostTimeStamp(tempPostTimeStamp);
 		    		  tempPost.setPostUserId(tempUserId);
-		    		  tempRes.setPostMessage(tempPostMessage);
+		    		  tempPost.setPostMessage(tempPostMessage);
 		    		  
 		    		  PreparedStatement ps2 = conn.prepareStatement(
 		    				  "SELECT * from PostAlbum WHERE user_id LIKE?");
@@ -1051,12 +828,12 @@ public class Application {
 
 	/*
 	 * This function will be responsible for tracking which users like a particular 
-	 * post in the database with “INSERT” statements to the “PostLike” table after 
+	 * post in the database with â€œINSERTâ€� statements to the â€œPostLikeâ€� table after 
 	 * a connection using the JDBC DriverManager is established. Insertion will also 
 	 * be surrounded by Try, Catch blocks to ensure a minimum level of error handling. 
-	 * Function will return “True” if addition is successful and “False” otherwise.
+	 * Function will return â€œTrueâ€� if addition is successful and â€œFalseâ€� otherwise.
 	 */
-	private boolean likePost(String post_id, String user_id) {
+	public boolean likePost(String post_id, String user_id) {
 		// time stamp needs to figured out here
 		Connection conn = null;
 		Statement st = null;
@@ -1098,12 +875,12 @@ public class Application {
 
 	/*
 	 * This function will be responsible for deleting the relationship of the user 
-	 * liking the post permanently using the “DELETE” statement after a connection 
+	 * liking the post permanently using the â€œDELETEâ€� statement after a connection 
 	 * using the JDBC DriverManager is established. Deletion will also be surrounded 
 	 * by Try, Catch blocks to ensure a minimum level of error handling. Function will 
-	 * return “True” if relationship is successfully deleted and “False” otherwise.
+	 * return â€œTrueâ€� if relationship is successfully deleted and â€œFalseâ€� otherwise.
 	 */
-	private boolean unlikePost(String post_id, String user_id) {
+	public boolean unlikePost(String post_id, String user_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -1140,13 +917,13 @@ public class Application {
 
 	/*
 	 * This function will be responsible for tracking which users shared a particular 
-	 * post in the database with “INSERT” statements to the “PostShare” table and also 
-	 * adds the same post to “Post” table (but under current user) after a connection 
+	 * post in the database with â€œINSERTâ€� statements to the â€œPostShareâ€� table and also 
+	 * adds the same post to â€œPostâ€� table (but under current user) after a connection 
 	 * using the JDBC DriverManager is established. Insertion will also be surrounded by 
 	 * Try, Catch blocks to ensure a minimum level of error handling. Function will return 
-	 * “True” if addition is successful and “False” otherwise.
+	 * â€œTrueâ€� if addition is successful and â€œFalseâ€� otherwise.
 	 */
-	private boolean sharePost(String post_id, String user_id, DateTime timeStamp) {
+	public boolean sharePost(String post_id, String user_id, DateTime timeStamp) {
 		// ? look at this
 
 		// time stamp needs to figured out here
@@ -1211,14 +988,14 @@ public class Application {
 	}
 
 	/* 
-	 * This function will be responsible for deleting existing songs, the “AlbumSong” 
+	 * This function will be responsible for deleting existing songs, the â€œAlbumSongâ€� 
 	 * relationships,and all posts that included those songs inside the album from the 
-	 * database permanently using the “DELETE” statement after a connection using the 
+	 * database permanently using the â€œDELETEâ€� statement after a connection using the 
 	 * JDBC DriverManager is established. Deletion will also be surrounded by Try, Catch 
-	 * blocks to ensure a minimum level of error handling. Function will return “True” 
-	 * if song is successfully deleted and “False” otherwise.
+	 * blocks to ensure a minimum level of error handling. Function will return â€œTrueâ€� 
+	 * if song is successfully deleted and â€œFalseâ€� otherwise.
 	 */
-	private boolean deletePost(String post_id) {
+	public boolean deletePost(String post_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;

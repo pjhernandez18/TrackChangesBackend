@@ -91,7 +91,27 @@ public class WebSocketEndpoint {
 			newUser.setUserLoginTimeStamp((String)json.get("logintimestamp"));
 			newUser.setUserIsActive(true);
 			handleSuccess = app.addUser(newUser);
-		} else if(request.equals("edit_post")) {
+		} else if(request.equals("follow")) {
+			String user_id = (String)json.get("user_id");
+			String follower_id = (String)json.get("follower_id");
+			handleSuccess = app.follow(user_id, follower_id);
+		} else if(request.equals("unfollow")) {
+			
+		} else if(request.equals("get_followers")) {
+			
+		} else if(request.equals("update_user")) {
+			
+		} else if(request.equals("update_user")) {
+			
+		} else if(request.equals("update_user")) {
+			
+		} else if(request.equals("update_user")) {
+			
+		} else if(request.equals("update_user")) {
+			
+		} else if(request.equals("update_user")) {
+			
+		} else if(request.equals("update_user")) {
 			
 		}
  		return handleSuccess;

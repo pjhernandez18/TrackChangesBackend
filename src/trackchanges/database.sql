@@ -13,7 +13,7 @@ CREATE TABLE User (
 	user_displayname VARCHAR(100) NOT NULL,
 	user_imageurl VARCHAR(500) NOT NULL,
     user_logintimestamp VARCHAR(100) NOT NULL,
-    user_isactive BOOL NOT NULL
+    user_isactive boolean NOT NULL
 );
 
 /* Stores followers / following relationship */

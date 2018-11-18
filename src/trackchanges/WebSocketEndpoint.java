@@ -50,12 +50,7 @@ public class WebSocketEndpoint {
 		try {
 			JSONObject json = (JSONObject) parser.parse(parsedJson);
 			String request = (String) json.get("request");
-			System.out.println("Decoded Json:");
-			System.out.println(request);
-//			System.out.println(json.get("id"));
-//			System.out.println(json.get("displayname"));
-//			System.out.println(json.get("logintimestamp"));
-//			System.out.println(json.get("imageurl"));
+			System.out.println("Decoded Json: " + request);
 			
 			// Sends request and body to handler to call Application.jaa functions
 			parseSuccess = handleRequest(request, json, session);
@@ -180,6 +175,16 @@ public class WebSocketEndpoint {
 			String song_id = (String)json.get("song_id");
 			String user_id = (String)json.get("user_id");
 			handleSuccess = app.unlikeSong(song_id, user_id);
+			
+		} else if(request.equals("add_post")) {
+			
+			Post newPost = new Post();
+			newPost.setPostTimeStamp((String)json.get("post_timestamp"));
+			newPost.setPostUserId((String)json.get("post_user_id"));
+			newPost.setPostMessage((String)json.get("post_message"));
+			newPost.setPostSongId((String)json.get("post_song_id"));
+			newPost.setPostAlbumId((String)json.get("post_album_id"));
+			handleSuccess = app.addPost(newPost);
 			
 		} else if(request.equals("get_posts")) {
 			

@@ -48,7 +48,7 @@ CREATE TABLE SongLike (
 /* --------------------------- Post Data --------------------------- */
 /* Stores the content of each post and creator of post */
 CREATE TABLE Post (
-	post_id VARCHAR(100) PRIMARY KEY,
+	post_id INT(11) AUTO_INCREMENT  PRIMARY KEY,
    	post_timestamp VARCHAR(100) NOT NULL,
 	user_id VARCHAR(100) NOT NULL,
 	post_message VARCHAR(500) NOT NULL,
@@ -88,5 +88,5 @@ CREATE TABLE PostSong (
 	post_id VARCHAR(100) NOT NULL,
 	PRIMARY KEY (song_id, post_id),
 	FOREIGN KEY (song_id) REFERENCES Song(song_id),
-	FOREIGN KEY (post_id) REFERENCES Post(post_id)
+	FOREIGN KEY (Studentpost_id) REFERENCES Post(post_id)
 );

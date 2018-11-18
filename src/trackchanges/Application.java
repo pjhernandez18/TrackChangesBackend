@@ -9,6 +9,8 @@ import java.sql.Statement;
 
 public class Application {
 	
+	private static final long serialVersionUID = 1L;
+	
 	// Variables:
 	/*
 	 * This contains the function will store the global url we will 
@@ -16,7 +18,7 @@ public class Application {
 	 * necessary for the application, for example:  
 	 * “jdbc:mysql://localhost:3306/CalendarApp?user=root&password=&useSSL=false”;
 	 */
-	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/TrackChangesDatabase?user=root&password=&useSSL=false";
+	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/CSCI201ProjectDatabase?user=root&password=&useSSL=false";
 	
 	// Functions:
 	/*
@@ -41,13 +43,11 @@ public class Application {
 					+ "user_id, "
 					+ "user_displayname, "
 					+ "user_logintimestamp, "
-					+ "user_imageurl, "
-					+ "user_is_active) VALUES ('" 
+					+ "user_imageurl) VALUES ('" 
 					+ newUser.getUserId() + "', '"
 					+ newUser.getUserDisplayName() + "', '"
-					+ newUser.getUserLoginTimeStamp().toString() + "', '"
-					+ newUser.getUserImageUrl() + "', '" 
-					+ newUser.getUserIsActive() + "');");
+					+ newUser.getUserLoginTimeStamp() + "', '"
+					+ newUser.getUserImageUrl() + "');");
 			result = ps.execute();
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());

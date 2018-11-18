@@ -21,7 +21,7 @@ public class User {
 	
 	@SerializedName("User_LoginTimeStamp")
 	@Expose
-	private DateTime user_logintimestamp;
+	private String user_logintimestamp;
 	
 	@SerializedName("User_IsActive")
 	@Expose
@@ -51,11 +51,11 @@ public class User {
 		this.user_imageUrl = user_imageUrl;
 	}
 	
-	public DateTime getUserLoginTimeStamp() {
+	public String getUserLoginTimeStamp() {
 		return user_logintimestamp;
 	}
 	
-	public void setUserLoginTimeStamp(DateTime user_logintimestamp) {
+	public void setUserLoginTimeStamp(String user_logintimestamp) {
 		this.user_logintimestamp = user_logintimestamp;
 	}
 	

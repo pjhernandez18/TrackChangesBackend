@@ -94,8 +94,10 @@ public class WebSocketEndpoint {
 			newUser.setUserLoginTimeStamp(new DateTime((String)body.get("logintimestamp")));
 			newUser.setUserIsActive(true);
 			handleSuccess = app.addUser(newUser);
+		} else if(request.equals("edit_post")) {
+			
 		}
-		return handleSuccess;
+ 		return handleSuccess;
 	}
 
 	@OnError

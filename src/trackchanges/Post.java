@@ -46,7 +46,7 @@ public class Post {
 	}
 	
 	public String getPostUserId() {
-		return post_id;
+		return post_userId;
 	}
 	
 	public void setPostUserId(String post_userId) {

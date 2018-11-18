@@ -178,9 +178,14 @@ public class WebSocketEndpoint {
 			
 		} else if(request.equals("add_post")) {
 			
+			
+			
 			Post newPost = new Post();
 			newPost.setPostTimeStamp((String)json.get("post_timestamp"));
 			newPost.setPostUserId((String)json.get("post_user_id"));
+			System.out.println("1");
+			System.out.println((String)json.get("post_user_id"));
+			System.out.println("2");
 			newPost.setPostMessage((String)json.get("post_message"));
 			newPost.setPostSongId((String)json.get("post_song_id"));
 			newPost.setPostAlbumId((String)json.get("post_album_id"));

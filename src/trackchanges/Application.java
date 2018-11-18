@@ -21,7 +21,7 @@ public class Application {
 	 * necessary for the application, for example:  
 	 * “jdbc:mysql://localhost:3306/CalendarApp?user=root&password=&useSSL=false”;
 	 */
-	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/CSCI201ProjectDatabase?user=root&password=&useSSL=false";
+	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/CSCI201ProjectDatabase?user=root&password=root&useSSL=false";
 	
 	// Functions:
 	/*
@@ -640,38 +640,45 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
+			System.out.println(newPost.getPostId());
+			System.out.println(newPost.getPostMessage());
+			System.out.println(newPost.getPostUserId());
+			System.out.println(newPost.getPostTimeStamp());
+			System.out.println(newPost.getPostSongId());
+			System.out.println(newPost.getPostAlbumId());
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			System.out.println("3");
+			System.out.println(newPost.getPostUserId());
+			System.out.println("4");
 			ps = conn.prepareStatement(
-					"INSERT INTO Post (post_id, "
+					"INSERT INTO Post ("
 					+ "post_timestamp, "
-					
-					
 					+ "user_id, "
+					+ "song_id, "
+					+ "album_id, "
 					+ "post_message) VALUES ('" 
-					
-					+ newPost.getPostId() + "', '" 
 					+ newPost.getPostTimeStamp().toString() + "', '" 
-					
 					+ newPost.getPostUserId() + "', '" 
-					
+					+ newPost.getPostSongId() + "', '" 
+					+ newPost.getPostAlbumId() + "', '" 
 					+ newPost.getPostMessage() + "');");
 			result = ps.execute();
 			
 			// insert into post song id table
-			if(newPost.getPostSongId() != null) {
-				ps = conn.prepareStatement("INSERT INTO PostSong(song_id, "
-						+ "post_id) VALUES ('"
-						+ newPost.getPostSongId() + "', '" 
-						+ newPost.getPostId() + "');");
-				
-			}
-			else { // insert into post album id table
-				ps = conn.prepareStatement("INSERT INTO PostAlbum(album_id, "
-						+ "post_id) VALUES ('"
-						+ newPost.getPostAlbumId() + "', '" 
-						+ newPost.getPostId() + "');");
-			}
+//			if(newPost.getPostSongId() != null) {
+//				ps = conn.prepareStatement("INSERT INTO PostSong(song_id, "
+//						+ "post_id) VALUES ('"
+//						+ newPost.getPostSongId() + "', '" 
+//						+ newPost.getPostId() + "');");
+//				
+//			}
+//			else { // insert into post album id table
+//				ps = conn.prepareStatement("INSERT INTO PostAlbum(album_id, "
+//						+ "post_id) VALUES ('"
+//						+ newPost.getPostAlbumId() + "', '" 
+//						+ newPost.getPostId() + "');");
+//			}
 			result = ps.execute();	
 			
 			

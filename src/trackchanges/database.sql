@@ -52,6 +52,8 @@ CREATE TABLE Post (
    	post_timestamp VARCHAR(100) NOT NULL,
 	user_id VARCHAR(100) NOT NULL,
 	post_message VARCHAR(500) NOT NULL,
+	song_id VARCHAR(100) NOT NULL,
+	album_id VARCHAR(500) NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
@@ -71,22 +73,4 @@ CREATE TABLE PostLike (
 	PRIMARY KEY (post_id, user_id),
 	FOREIGN KEY (post_id) REFERENCES Post(post_id),
 	FOREIGN KEY (user_id) REFERENCES User(user_id)
-);
-
-/* Stores the albums that are included in each post */
-CREATE TABLE PostAlbum (
-	album_id VARCHAR(100) NOT NULL,
-	post_id VARCHAR(100) NOT NULL,
-	PRIMARY KEY (album_id, post_id),
-	FOREIGN KEY (album_id) REFERENCES Album(album_id),
-	FOREIGN KEY (post_id) REFERENCES Post(post_id)
-);
-
-/* Stores the songs that are included in each post */
-CREATE TABLE PostSong (
-	song_id VARCHAR(100) NOT NULL,
-	post_id VARCHAR(100) NOT NULL,
-	PRIMARY KEY (song_id, post_id),
-	FOREIGN KEY (song_id) REFERENCES Song(song_id),
-	FOREIGN KEY (Studentpost_id) REFERENCES Post(post_id)
 );

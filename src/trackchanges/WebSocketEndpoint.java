@@ -182,6 +182,7 @@ public class WebSocketEndpoint {
 			handleSuccess = app.unlikeSong(song_id, user_id);
 			
 		} else if(request.equals("get_posts")) {
+			
 			String user_id = (String)json.get("user_id");
 			Post[] posts = app.getPosts(user_id);
 			JSONArray jsonPostArray = new JSONArray();
@@ -194,7 +195,9 @@ public class WebSocketEndpoint {
 			response.put("posts", jsonPostArray);
 			sendToSession(session, response.toString().getBytes());
 			handleSuccess = true;
+			
 		} else if(request.equals("get_feed")) {
+			
 			String user_id = (String)json.get("user_id");
 			Post[] posts = app.getFeed(user_id);
 			JSONArray jsonFeedArray = new JSONArray();
@@ -209,6 +212,7 @@ public class WebSocketEndpoint {
 			handleSuccess = true;
 			
 		} else if(request.equals("like_post")) {
+			
 			String user_id = (String)json.get("user_id");
 			String post_id = (String)json.get("post_id");
 			handleSuccess = app.likePost(post_id, user_id);
@@ -226,9 +230,12 @@ public class WebSocketEndpoint {
 			String timestamp = (String)json.get("timestamp");
 	
 			handleSuccess = app.sharePost(post_id, user_id, timestamp);
+			
 		} else if(request.equals("delete_post")) {
+			
 			String post_id = (String)json.get("post_id");
 			handleSuccess = app.deletePost(post_id);
+			
 		}
  		return handleSuccess;
 	}

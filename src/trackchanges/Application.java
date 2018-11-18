@@ -6,6 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+
+import org.joda.time.DateTime;
 
 public class Application {
 	
@@ -43,11 +46,14 @@ public class Application {
 					+ "user_id, "
 					+ "user_displayname, "
 					+ "user_logintimestamp, "
-					+ "user_imageurl) VALUES ('" 
+					+ "user_imageurl, "
+					+ "user_isactive) VALUES ('" 
 					+ newUser.getUserId() + "', '"
 					+ newUser.getUserDisplayName() + "', '"
 					+ newUser.getUserLoginTimeStamp() + "', '"
-					+ newUser.getUserImageUrl() + "');");
+					+ newUser.getUserImageUrl() + "', '"
+					+ newUser.getUserIsActive() 
+					+ "');");
 			result = ps.execute();
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());
@@ -80,7 +86,44 @@ public class Application {
 	 * Function will return “True” if user is successfully updated and “False” otherwise.
 	 */
 	private boolean updateUser(User user) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"UPDATE User SET "
+					+ "user_id=" + user.getUserId()
+					+ ", user_displayname=" + user.getUserDisplayName()
+					+ ", user_logintimestamp=" + user.getUserLoginTimeStamp().toString()
+					+ ", user_imageurl=" + user.getUserImageUrl()
+					+ ", user_is_active=" +  user.getUserIsActive()
+					+ " WHERE user_id=" + user.getUserId());
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 	
 	/*
@@ -92,7 +135,39 @@ public class Application {
 	 * is successfully deactivated and “False” otherwise.
 	 */
 	private boolean deactivateUser(String user_id) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"UPDATE User SET user_is_active=false WHERE user_id="+user_id);
+					
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 	
 	/*
@@ -103,9 +178,83 @@ public class Application {
 	 * Function will return “True” if user is successfully deleted and “False” otherwise.
 	 */
 	private boolean deleteUser(String user_id) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"DELETE FROM User WHERE user_id=?");
+			ps.setString(1,  user_id);
+			result = ps.execute();
+			
+			// user won't necessarily have rows in these following tables
+			// so the value of result won't be dependent on successful execute()
+			ps = conn.prepareStatement(
+					"DELETE FROM Follow WHERE user_id=?");
+			ps.setString(1,  user_id);
+			ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM SongLike WHERE user_id=?");
+			ps.setString(1,  user_id);
+			ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM Post WHERE user_id=?");
+			ps.setString(1,  user_id);
+			ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM PostShare WHERE user_id=?");
+			ps.setString(1,  user_id);
+			ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM PostLike WHERE user_id=?");
+			ps.setString(1,  user_id);
+			ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM PostAlbum WHERE user_id=?");
+			ps.setString(1,  user_id);
+			ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM PostSong WHERE user_id=?");
+			ps.setString(1,  user_id);
+			ps.execute();
+			
+			
+			
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
-
+	
+	// TBD
+	/*
 	/*
 	 * This function will be responsible for adding new artists into the database 
 	 * with “INSERT” statements after a connection using the JDBC DriverManager 
@@ -114,7 +263,7 @@ public class Application {
 	 * user is successfully added and “False” otherwise.
 	 */
 	private boolean addArtist(Artist newArtist) {
-		return true;
+		return false;
 	}
 
 	/*
@@ -125,7 +274,7 @@ public class Application {
 	 * return “True” if user is successfully updated and “False” otherwise.
 	 */
 	private boolean updateArtist(Artist artist) {
-		return true;
+		return false;
 	}
 
 	/*
@@ -138,7 +287,7 @@ public class Application {
 	 * and “False” otherwise.
 	 */
 	private boolean deleteArtist(String artist_id) {
-		return true;
+		return false;
 	}
 
 	/*
@@ -149,7 +298,41 @@ public class Application {
 	 * “True” if follower is successfully added and “False” otherwise.
 	 */
 	private boolean follow(String user_id, String follower_id) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"INSERT INTO Follow (user_id, "
+					+ "follow_id) VALUES ('" 
+					+ user_id + "', '"  
+					+ follower_id + "');");
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -160,7 +343,39 @@ public class Application {
 	 * successfully deleted and “False” otherwise.
 	 */
 	private boolean unfollow(String user_id, String follower_id) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			// not sure how to delete based off two parameters
+			ps = conn.prepareStatement(
+					"DELETE FROM Follow WHERE user_id=" + user_id + " AND " + "follower_id=" + follower_id);
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -171,7 +386,50 @@ public class Application {
 	 * corresponding to each follower. Size of array will be the number of followers a user has.
 	 */
 	private String[] getFollowers(String user_id) {
-		return null;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		ArrayList<String> tempRes = new ArrayList<String>(); 
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			// not sure how to delete based off two parameters
+			ps = conn.prepareStatement(
+					"SELECT * from Follow WHERE user_id LIKE?");
+			ps.setString(1, "%" + user_id + "%");
+	    	  
+	    	  rs = ps.executeQuery();
+	    	  while(rs.next()){
+	    		  String tempFollower = rs.getString("follower_id");
+	    		  tempRes.add(tempFollower);
+	    	  }
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		
+		String [] res = new String[tempRes.size()];
+		for(int i = 0; i < tempRes.size(); ++i) {
+			res[i] = tempRes.get(i);
+		}
+		return res;
 	}
 
 	/*
@@ -183,7 +441,50 @@ public class Application {
 	 * number of users the user specified is following.
 	 */
 	private String[] getFollowing(String user_id) {
-		return null;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		ArrayList<String> tempRes = new ArrayList<String>(); 
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			// not sure how to delete based off two parameters
+			ps = conn.prepareStatement(
+					"SELECT * from Follow WHERE follower_id LIKE?");
+			ps.setString(1, "%" + user_id + "%");
+	    	  
+	    	  rs = ps.executeQuery();
+	    	  while(rs.next()){
+	    		  String tempFollower = rs.getString("user_id");
+	    		  tempRes.add(tempFollower);
+	    	  }
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		
+		String [] res = new String[tempRes.size()];
+		for(int i = 0; i < tempRes.size(); ++i) {
+			res[i] = tempRes.get(i);
+		}
+		return res;
 	}
 
 	/*
@@ -193,8 +494,39 @@ public class Application {
 	 * Try, Catch blocks to ensure a minimum level of error handling. Function will return 
 	 * “True” if album is successfully added and “False” otherwise.
 	 */
-	private boolean addAlbum(Album newAlbum) {
-		return true;
+	private boolean addAlbum(String album_id) {
+		
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement("INSERT INTO Album (album_id) VALUES ('" + album_id+ "');");
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -206,7 +538,47 @@ public class Application {
 	 * deleted and “False” otherwise.
 	 */
 	private boolean deleteAlbum(String album_id) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM Album WHERE album_id=?");
+			ps.setString(1,  album_id);
+			result = ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM PostAlbum WHERE album_id=?");
+			ps.setString(1,  album_id);
+			ps.execute();
+			
+			
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -217,8 +589,38 @@ public class Application {
 	 * will also be surrounded by Try, Catch blocks to ensure a minimum level of error 
 	 * handling. Function will return “True” if song is successfully added and “False” otherwise.
 	 */
-	private boolean addSong(Song newSong, String album_id) {
-		return true;
+	private boolean addSong(String song_id) {
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement("INSERT INTO Song (song_id) VALUES ('" + song_id+ "');");
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -229,7 +631,8 @@ public class Application {
 	 * if song is successfully added and “False” otherwise.
 	 */
 	private boolean addSong(Song newSong) {
-		return true;
+		// dont need this anymore?
+		return false;
 	}
 
 	/*
@@ -240,7 +643,43 @@ public class Application {
 	 * “True” if addition is successful and “False” otherwise.
 	 */
 	private boolean likeSong(String song_id, String user_id) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"INSERT INTO SongLike (song_id, "
+					
+					+ "user_id) VALUES ('" 
+					+ song_id + "', '" 
+				
+					+ user_id + "');");
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -251,7 +690,39 @@ public class Application {
 	 * relationship is successfully deleted and “False” otherwise.
 	 */
 	private boolean unlikeSong(String song_id, String user_id) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			// not sure how to delete based off two parameters
+			ps = conn.prepareStatement(
+					"DELETE FROM SongLike WHERE song_id=" + song_id + " AND " + "user_id=" + user_id);
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -263,19 +734,124 @@ public class Application {
 	 * successfully deleted and “False” otherwise.
 	 */
 	private boolean deleteSong(String song_id) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"DELETE FROM Song WHERE song_id=?");
+			ps.setString(1,  song_id);
+			result = ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM PostSong WHERE song_id=?");
+			ps.setString(1,  song_id);
+			ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM SongLike WHERE song_id=?");
+			ps.setString(1,  song_id);
+			ps.execute();
+			
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
 	 * This function will be responsible for adding a new post in the database with 
 	 * “INSERT” statements after a connection using the JDBC DriverManager is 
-	 * established (and also updates the “PostAlbum” and “PostSong” table if required). 
+	 * established (and also updates the “PostAlbum” or “PostSong” table if required). 
 	 * Insertion will also be surrounded by Try, Catch blocks to ensure a minimum level 
 	 * of error handling. Function will return “True” if post is successfully added and 
 	 * “False” otherwise.
 	 */
 	private boolean addPost(Post newPost) {
-		return true;
+		// time stamp needs to figured out here
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"INSERT INTO Post (post_id, "
+					+ "post_timestamp, "
+					
+					
+					+ "user_id, "
+					+ "post_message) VALUES ('" 
+					
+					+ newPost.getPostId() + "', '" 
+					+ newPost.getPostTimestamp().toString() + "', '" 
+					
+					+ newPost.getPostUserId() + "', '" 
+					
+					+ newPost.getPostMessage() + "');");
+			result = ps.execute();
+			
+			// insert into post song id table
+			if(newPost.getPostSongId != null) {
+				ps = conn.prepareStatement("INSERT INTO PostSong(song_id, "
+						+ "post_id) VALUES ('"
+						+ newPost.getPostSongId() + "', '" 
+						+ newPost.getPostId() + "');");
+				
+			}
+			else { // insert into post album id table
+				ps = conn.prepareStatement("INSERT INTO PostAlbum(album_id, "
+						+ "post_id) VALUES ('"
+						+ newPost.getPostAlbumId() + "', '" 
+						+ newPost.getPostId() + "');");
+			}
+			result = ps.execute();	
+			
+			
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -286,7 +862,84 @@ public class Application {
 	 * and null if no posts are found.
 	 */
 	private Post[] getPosts(String user_id) {
-		return null;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		ArrayList<Post> tempRes = new ArrayList<Post>(); 
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			// not sure how to delete based off two parameters
+			ps = conn.prepareStatement(
+					"SELECT * from Post WHERE user_id LIKE?");
+			ps.setString(1, "%" + user_id + "%");
+	    	  
+	    	  rs = ps.executeQuery();
+	    	  while(rs.next()){
+	    		  Post tempPost = new Post();
+	    		  
+	    		  String tempPostId = rs.getString("post_id");
+	    		  String tempPostTimeStamp = rs.getString("post_timestamp");
+	    		  String tempUserId = rs.getString("user_id");
+	    		  String tempPostMessage = rs.getString("post_message");
+	    		  
+	    		  tempPost.setPostID(tempPostId);
+	    		  tempPost.setPostTimeStamp(new DateTime(tempPostTimeStamp));
+	    		  tempPost.setPostUserId(tempUserId);
+	    		  tempRes.setPostMessage(tempPostMessage);
+	    		  
+	    		  PreparedStatement ps2 = conn.prepareStatement(
+	    				  "SELECT * from PostAlbum WHERE user_id LIKE?");
+	    		  ps2.setString(1, "%" + user_id + "%");
+	    		  ResultSet rs2 = ps2.executeQuery();
+	    		  
+	    		  PreparedStatement ps3 = conn.prepareStatement(
+	    				  "SELECT * from SongAlbum WHERE user_id LIKE?");
+	    		  ps3.setString(1, "%" + user_id + "%");
+	    		  ResultSet rs3 = ps3.executeQuery();
+	    		  
+	    		  if(ps2 != null) {
+	    			  tempPost.setPostAlbumId(rs2.getString("album_id"));
+	    		  }
+	    		  else {
+	    			  tempPost.setPostAlbumId(rs2.getString(null));
+	    		  }
+	    		  
+	    		  if(ps3 != null) {
+	    			  tempPost.setPostSongId(rs3.getString("song_id"));
+	    		  }
+	    		  else {
+	    			  tempPost.setPostSongId(rs3.getString(null));
+	    		  }
+	    		  tempRes.add(tempPost);
+	    	  }
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		
+		Post [] res = new Post[tempRes.size()];
+		for(int i = 0; i < tempRes.size(); ++i) {
+			res[i] = tempRes.get(i);
+		}
+		return res;
 	}
 
 	/*
@@ -298,7 +951,102 @@ public class Application {
 	 * null if no posts are found.
 	 */
 	private Post[] getFeed(String user_id) {
-		return null;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		ArrayList<Post> tempRes = new ArrayList<String>(); 
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			
+			
+			
+			// first select the users that the target user is following
+			ps = conn.prepareStatement(
+					"SELECT * from Follow WHERE follower_id LIKE?");
+			ps.setString(1, "%" + user_id + "%");
+	    	  
+	    	  rs = ps.executeQuery();
+	    	  ArrayList<String> following = new ArrayList<String>();
+	    	  while(rs.next()) {
+	    		  following.add(rs.getString("user_id"));
+	    	  }
+	    	  
+	    	  // do we have to reset rs, ps, etc. as null
+	    	  // iterate through the users that the target user is following 
+	    	  // add posts accordingly
+	    	  for(int i = 0; i < following.size(); ++i) {
+		  			ps = conn.prepareStatement(
+							"SELECT * from Post WHERE user_id LIKE?");
+					ps.setString(1, "%" + following.get(i) + "%");
+					 rs = ps.executeQuery();
+		    	  while(rs.next()){
+		    		  Post tempPost = new Post();
+		    		  
+		    		  String tempPostId = rs.getString("post_id");
+		    		  String tempPostTimeStamp = rs.getString("post_timestamp");
+		    		  String tempUserId = rs.getString("user_id");
+		    		  String tempPostMessage = rs.getString("post_message");
+		    		  
+		    		  tempPost.setPostID(tempPostId);
+		    		  tempPost.setPostTimeStamp(new DateTime(tempPostTimeStamp));
+		    		  tempPost.setPostUserId(tempUserId);
+		    		  tempRes.setPostMessage(tempPostMessage);
+		    		  
+		    		  PreparedStatement ps2 = conn.prepareStatement(
+		    				  "SELECT * from PostAlbum WHERE user_id LIKE?");
+		    		  ps2.setString(1, "%" + user_id + "%");
+		    		  ResultSet rs2 = ps2.executeQuery();
+		    		  
+		    		  PreparedStatement ps3 = conn.prepareStatement(
+		    				  "SELECT * from SongAlbum WHERE user_id LIKE?");
+		    		  ps3.setString(1, "%" + user_id + "%");
+		    		  ResultSet rs3 = ps3.executeQuery();
+		    		  
+		    		  if(ps2 != null) {
+		    			  tempPost.setPostAlbumId(rs2.getString("album_id"));
+		    		  }
+		    		  else {
+		    			  tempPost.setPostAlbumId(rs2.getString(null));
+		    		  }
+		    		  
+		    		  if(ps3 != null) {
+		    			  tempPost.setPostSongId(rs3.getString("song_id"));
+		    		  }
+		    		  else {
+		    			  tempPost.setPostSongId(rs3.getString(null));
+		    		  }
+		    		  tempRes.add(tempPost);
+		    	  }
+	    	  }
+
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		
+		Post [] res = new Post[tempRes.size()];
+		for(int i = 0; i < tempRes.size(); ++i) {
+			res[i] = tempRes.get(i);
+		}
+		return res;
 	}
 
 	/*
@@ -309,7 +1057,43 @@ public class Application {
 	 * Function will return “True” if addition is successful and “False” otherwise.
 	 */
 	private boolean likePost(String post_id, String user_id) {
-		return true;
+		// time stamp needs to figured out here
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"INSERT INTO PostLike (post_id, "
+					+ "user_id) VALUES ('" 
+					
+					+ post_id + "', '" 
+					+ user_id + "');");
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -320,7 +1104,38 @@ public class Application {
 	 * return “True” if relationship is successfully deleted and “False” otherwise.
 	 */
 	private boolean unlikePost(String post_id, String user_id) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"DELETE FROM PostLike WHERE post_id=" + post_id + " AND user_id=" + user_id);
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -331,8 +1146,68 @@ public class Application {
 	 * Try, Catch blocks to ensure a minimum level of error handling. Function will return 
 	 * “True” if addition is successful and “False” otherwise.
 	 */
-	private boolean sharePost(String post_id, String user_id) {
-		return true;
+	private boolean sharePost(String post_id, String user_id, DateTime timeStamp) {
+		// ? look at this
+
+		// time stamp needs to figured out here
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"SELECT * from Post WHERE user_id LIKE?");
+			ps.setString(1, "%" + post_id + "%");
+			rs = ps.executeQuery(); // check for exception here?
+			
+			
+			String postMessage = rs.getString("post_message");
+			 
+			ps = conn.prepareStatement(
+					"INSERT INTO Post (post_id, "
+					+ "post_timestamp, "
+					+ "user_id, "
+					+ "post_message) VALUES ('" 
+					
+					+ post_id + "', '" 
+					+ timeStamp.toString() + "', '" 
+					+ user_id + "', '" 
+					+ postMessage + "');");
+			result = ps.execute();
+			
+			ps = conn.prepareStatement(
+					"INSERT INTO PostShare (post_id, "
+					+ "user_id) VALUES ('" 
+					
+					+ post_id + "', '" 
+					+ user_id + "');");
+			result = ps.execute();
+			
+			
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 	/* 
@@ -344,7 +1219,54 @@ public class Application {
 	 * if song is successfully deleted and “False” otherwise.
 	 */
 	private boolean deletePost(String post_id) {
-		return true;
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"DELETE FROM Post WHERE post_id=" + post_id);
+			result = ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM PostLike WHERE post_id=" + post_id);
+			ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM PostShare WHERE post_id=" + post_id);
+			ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM PostSong WHERE post_id=" + post_id);
+			ps.execute();
+			
+			ps = conn.prepareStatement(
+					"DELETE FROM PostAlbum WHERE post_id=" + post_id);
+			ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
 	}
 
 }

@@ -20,8 +20,8 @@ CREATE TABLE Follow (
 	user_id VARCHAR(100) NOT NULL,
 	follower_id VARCHAR(100) NOT NULL,
 	PRIMARY KEY (user_id, follower_id),
-	FOREIGN KEY Follow_user_id (user_id) REFERENCES User(user_id),
-	FOREIGN KEY Follow_follower_id (follower_id) REFERENCES User(user_id)
+	FOREIGN KEY (user_id) REFERENCES User(user_id),
+	FOREIGN KEY (follower_id) REFERENCES User(user_id)
 );
 
 /* --------------------------- Album and Song Data --------------------------- */
@@ -41,8 +41,8 @@ CREATE TABLE SongLike (
 	song_id VARCHAR(100) NOT NULL,
 	user_id VARCHAR(100) NOT NULL,
 	PRIMARY KEY (song_id, user_id),
-	FOREIGN KEY SongLike_song_id (song_id) REFERENCES Song(song_id),
-	FOREIGN KEY SongLike_user_id (user_id) REFERENCES User(user_id)
+	FOREIGN KEY (song_id) REFERENCES Song(song_id),
+	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
 /* --------------------------- Post Data --------------------------- */
@@ -52,7 +52,7 @@ CREATE TABLE Post (
    	post_timestamp VARCHAR(100) NOT NULL,
 	user_id VARCHAR(100) NOT NULL,
 	post_message VARCHAR(500) NOT NULL,
-	FOREIGN KEY Post_user_id (user_id) REFERENCES User(user_id)
+	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
 /* Stores the number of shares of each post */
@@ -60,8 +60,8 @@ CREATE TABLE PostShare (
 	post_id VARCHAR(100) NOT NULL,
 	user_id VARCHAR(100) NOT NULL,
 	PRIMARY KEY (post_id, user_id),
-	FOREIGN KEY PostShare_post_id (post_id) REFERENCES Post(post_id),
-	FOREIGN KEY PostShare_user_id (user_id) REFERENCES User(user_id)
+	FOREIGN KEY (post_id) REFERENCES Post(post_id),
+	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
 /* Stores the number of likes of each post */
@@ -69,8 +69,8 @@ CREATE TABLE PostLike (
 	post_id VARCHAR(100) NOT NULL,
 	user_id VARCHAR(100) NOT NULL,
 	PRIMARY KEY (post_id, user_id),
-	FOREIGN KEY PostLike_post_id (post_id) REFERENCES Post(post_id),
-	FOREIGN KEY PostLike_user_id (user_id) REFERENCES User(user_id)
+	FOREIGN KEY (post_id) REFERENCES Post(post_id),
+	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
 /* Stores the albums that are included in each post */
@@ -78,8 +78,8 @@ CREATE TABLE PostAlbum (
 	album_id VARCHAR(100) NOT NULL,
 	post_id VARCHAR(100) NOT NULL,
 	PRIMARY KEY (album_id, post_id),
-	FOREIGN KEY PostAlbum_album_id (album_id) REFERENCES Album(album_id),
-	FOREIGN KEY PostAlbum_post_id (post_id) REFERENCES Post(post_id)
+	FOREIGN KEY (album_id) REFERENCES Album(album_id),
+	FOREIGN KEY (post_id) REFERENCES Post(post_id)
 );
 
 /* Stores the songs that are included in each post */
@@ -87,6 +87,6 @@ CREATE TABLE PostSong (
 	song_id VARCHAR(100) NOT NULL,
 	post_id VARCHAR(100) NOT NULL,
 	PRIMARY KEY (song_id, post_id),
-	FOREIGN KEY PostSong_song_id (song_id) REFERENCES Song(song_id),
-	FOREIGN KEY PostSong_post_id (post_id) REFERENCES Post(post_id)
+	FOREIGN KEY (song_id) REFERENCES Song(song_id),
+	FOREIGN KEY (post_id) REFERENCES Post(post_id)
 );

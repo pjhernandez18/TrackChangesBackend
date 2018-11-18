@@ -39,7 +39,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"INSERT INTO User ("
@@ -91,7 +91,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"INSERT INTO Follow (user_id, "
@@ -136,7 +136,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			// not sure how to delete based off two parameters
 			ps = conn.prepareStatement(
@@ -173,24 +173,21 @@ public class Application {
 	 * corresponding to each follower. Size of array will be the number of followers a user has.
 	 */
 	public ArrayList<String> getFollowers(String user_id) {
-		System.out.println("starttt" + user_id);
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		ArrayList<String> result = new ArrayList<String>(); 
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			// not sure how to delete based off two parameters
 			ps = conn.prepareStatement("SELECT f.follower_id FROM Follow f WHERE f.user_id = '" + user_id + "';");
 			rs = ps.executeQuery();
-			System.out.println("damnnnn");
 			while(rs.next()){
 				result.add(rs.getString("follower_id"));
 				System.out.println(rs.getString("follower_id"));
 			}
-			System.out.println("akgaksgd");
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());
 		} catch (ClassNotFoundException cnfe) {
@@ -229,7 +226,7 @@ public class Application {
 		PreparedStatement ps = null;
 		ArrayList<String> tempRes = new ArrayList<String>(); 
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			// not sure how to delete based off two parameters
 			ps = conn.prepareStatement(

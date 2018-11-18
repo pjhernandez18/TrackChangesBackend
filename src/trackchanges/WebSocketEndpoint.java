@@ -2,6 +2,7 @@ package trackchanges;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -106,7 +107,7 @@ public class WebSocketEndpoint {
 		} else if(request.equals("get_followers")) {
 			
 			String user_id = (String)json.get("user_id");
-			String[] followers = app.getFollowers(user_id);
+			ArrayList<String> followers = app.getFollowers(user_id);
 			for(String follower : followers) {
 				System.out.println(follower);
 			}
@@ -114,9 +115,10 @@ public class WebSocketEndpoint {
 			for(String follower : followers) {
 				jsonFollowersArray.add(follower);
 			}
-			JSONObject jsonFollowers = new JSONObject();
-			jsonFollowers.put("followers", jsonFollowersArray);
-			sendToSession(session, jsonFollowers.toString().getBytes());
+			JSONObject response = new JSONObject();
+			response.put("response", "followers");
+			response.put("followers", jsonFollowersArray);
+			sendToSession(session, response.toString().getBytes());
 			handleSuccess = true;
 			
 		} else if(request.equals("get_following")) {

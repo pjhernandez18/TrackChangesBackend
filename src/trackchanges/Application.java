@@ -172,22 +172,25 @@ public class Application {
 	 * a minimum level of error handling. Function will return an array of â€œuser_idâ€�(s) 
 	 * corresponding to each follower. Size of array will be the number of followers a user has.
 	 */
-	public String[] getFollowers(String user_id) {
+	public ArrayList<String> getFollowers(String user_id) {
+		System.out.println("starttt" + user_id);
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
 		PreparedStatement ps = null;
-		ArrayList<String> tempRes = new ArrayList<String>(); 
+		ArrayList<String> result = new ArrayList<String>(); 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			// not sure how to delete based off two parameters
 			ps = conn.prepareStatement("SELECT f.follower_id FROM Follow f WHERE f.user_id = '" + user_id + "';");
 			rs = ps.executeQuery();
+			System.out.println("damnnnn");
 			while(rs.next()){
-				String tempFollower = rs.getString("follower_id");
-				tempRes.add(tempFollower);
+				result.add(rs.getString("follower_id"));
+				System.out.println(rs.getString("follower_id"));
 			}
+			System.out.println("akgaksgd");
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());
 		} catch (ClassNotFoundException cnfe) {
@@ -208,12 +211,7 @@ public class Application {
 				System.out.println("sqle closing error: " + sqle.getMessage());
 			}
 		}
-		
-		String [] res = new String[tempRes.size()];
-		for(int i = 0; i < tempRes.size(); ++i) {
-			res[i] = tempRes.get(i);
-		}
-		return res;
+		return result;
 	}
 
 	/*

@@ -3,9 +3,7 @@ package trackchanges;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.websocket.OnClose;
@@ -17,7 +15,7 @@ import javax.websocket.server.ServerEndpoint;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.joda.time.DateTime;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -58,7 +56,7 @@ public class WebSocketEndpoint {
 			System.out.println(json.get("imageurl"));
 			
 			// Sends request and body to handler to call Application.jaa functions
-			parseSuccess = handleRequest(request, json);
+			parseSuccess = handleRequest(request, json, session);
 			
 		} catch (ParseException pe) {
 			System.out.println("pe: " + pe.getMessage());
@@ -80,10 +78,11 @@ public class WebSocketEndpoint {
 	/*
 	 * Handles the request received from iOS client
 	 */
-	private boolean handleRequest(String request, JSONObject json) {
+	private boolean handleRequest(String request, JSONObject json, Session session) {
 		Application app = new Application();
 		boolean handleSuccess = false;
 		if(request.equals("add_user")) {
+			
 			User newUser = new User();
 			newUser.setUserId((String)json.get("id"));
 			newUser.setUserDisplayName((String)json.get("displayname"));
@@ -91,27 +90,78 @@ public class WebSocketEndpoint {
 			newUser.setUserLoginTimeStamp((String)json.get("logintimestamp"));
 			newUser.setUserIsActive(true);
 			handleSuccess = app.addUser(newUser);
+			
 		} else if(request.equals("follow")) {
+			
 			String user_id = (String)json.get("user_id");
 			String follower_id = (String)json.get("follower_id");
 			handleSuccess = app.follow(user_id, follower_id);
+			
 		} else if(request.equals("unfollow")) {
+			
+			String user_id = (String)json.get("user_id");
+			String follower_id = (String)json.get("follower_id");
+			handleSuccess = app.unfollow(user_id, follower_id);
 			
 		} else if(request.equals("get_followers")) {
 			
-		} else if(request.equals("update_user")) {
+			String user_id = (String)json.get("user_id");
+			String[] followers = app.getFollowers(user_id);
+			JSONArray jsonFollowersArray = new JSONArray();
+			for(String follower : followers) {
+				jsonFollowersArray.add(follower);
+			}
+			JSONObject jsonFollowers = new JSONObject();
+			jsonFollowers.put("followers", jsonFollowersArray);
+			sendToSession(session, jsonFollowers.toString().getBytes());
+			handleSuccess = true;
 			
-		} else if(request.equals("update_user")) {
+		} else if(request.equals("get_following")) {
 			
-		} else if(request.equals("update_user")) {
+			String user_id = (String)json.get("user_id");
+			String[] followings = app.getFollowing(user_id);
+			JSONArray jsonFollowingsArray = new JSONArray();
+			for(String following : followings) {
+				jsonFollowingsArray.add(following);
+			}
+			JSONObject jsonFollowings = new JSONObject();
+			jsonFollowings.put("followings", jsonFollowingsArray);
+			sendToSession(session, jsonFollowings.toString().getBytes());
+			handleSuccess = true;
 			
-		} else if(request.equals("update_user")) {
+		} else if(request.equals("add_album")) {
 			
-		} else if(request.equals("update_user")) {
+			String album_id = (String)json.get("album_id");
+			handleSuccess = app.addAlbum(album_id);
 			
-		} else if(request.equals("update_user")) {
+		} else if(request.equals("delete_album")) {
 			
-		} else if(request.equals("update_user")) {
+			String album_id = (String)json.get("album_id");
+			handleSuccess = app.deleteAlbum(album_id);
+			
+		} else if(request.equals("add_song")) {
+			
+			String song_id = (String)json.get("song_id");
+			handleSuccess = app.addSong(song_id);
+			
+		} else if(request.equals("delete_song")) {
+			
+			String song_id = (String)json.get("song_id");
+			handleSuccess = app.deleteSong(song_id);
+			
+		} else if(request.equals("like_song")) {
+			
+			String song_id = (String)json.get("song_id");
+			String user_id = (String)json.get("user_id");
+			handleSuccess = app.likeSong(song_id, user_id);
+			
+		} else if(request.equals("unlike_song")) {
+			
+			String song_id = (String)json.get("song_id");
+			String user_id = (String)json.get("user_id");
+			handleSuccess = app.unlikeSong(song_id, user_id);
+			
+		} else if(request.equals("add_post")) {
 			
 		}
  		return handleSuccess;

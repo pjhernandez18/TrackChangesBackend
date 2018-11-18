@@ -27,7 +27,7 @@ public class Application {
 	 * error handling. Function will return “True” if user is successfully 
 	 * added and “False” otherwise.
 	 */
-	private boolean addUser(User newUser) {
+	public boolean addUser(User newUser) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -37,21 +37,15 @@ public class Application {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
-					"INSERT INTO User (user_id, "
-					+ "user_password, "
-					+ "user_login_timestamp, "
-					+ "user_email, user_firstname, "
-					+ "user_lastname, "
-					+ "user_username, "
-					+ "user_image_url, "
+					"INSERT INTO User ("
+					+ "user_id, "
+					+ "user_displayname, "
+					+ "user_logintimestamp, "
+					+ "user_imageurl, "
 					+ "user_is_active) VALUES ('" 
-					+ newUser.getUserId() + "', '" 
-					+ newUser.getUserPassword() + "', '" 
-					+ newUser.getUserLogin() + "', '" 
-					+ newUser.getUserEmail() + "', '" 
-					+ newUser.getUserFirstName() + "', '" 
-					+ newUser.getUserLastName() + "', '" 
-					+ newUser.getUserUserName() + "', '" 
+					+ newUser.getUserId() + "', '"
+					+ newUser.getUserDisplayName() + "', '"
+					+ newUser.getUserLoginTimeStamp().toString() + "', '"
 					+ newUser.getUserImageUrl() + "', '" 
 					+ newUser.getUserIsActive() + "');");
 			result = ps.execute();
@@ -86,57 +80,7 @@ public class Application {
 	 * Function will return “True” if user is successfully updated and “False” otherwise.
 	 */
 	private boolean updateUser(User user) {
-		Connection conn = null;
-		Statement st = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		boolean result = false;
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
-			ps = conn.prepareStatement(
-					"INSERT INTO User (user_id, "
-					+ "user_password, "
-					+ "user_login_timestamp, "
-					+ "user_email, user_firstname, "
-					+ "user_lastname, "
-					+ "user_username, "
-					+ "user_image_url, "
-					+ "user_is_active) VALUES ('" 
-					+ user.getUserId() + "', '" 
-					+ user.getUserPassword() + "', '" 
-					+ user.getUserLogin() + "', '" 
-					+ user.getUserEmail() + "', '" 
-					+ user.getUserFirstName() + "', '" 
-					+ user.getUserLastName() + "', '" 
-					+ user.getUserUserName() + "', '" 
-					+ user.getUserImageUrl() + "', '" 
-					+ user.getUserIsActive() + "') ON DUPLICATE KEY UPDATE " 
-					+ "user = '" + 
-					+ "', event_start = '" + eventsArr[i].getStart() 
-					+ "', event_end ='" + eventsArr[i].getEnd() + "'; ");
-			result = ps.execute();
-		} catch (SQLException sqle) {
-			System.out.println("sqle: " + sqle.getMessage());
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("cnfe: " + cnfe.getMessage());
-		} finally {
-			// You always need to close the connection to the database
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (st != null) {
-					st.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch(SQLException sqle) {
-				System.out.println("sqle closing error: " + sqle.getMessage());
-			}
-		}
-		return result;
+		return true;
 	}
 	
 	/*
@@ -148,57 +92,7 @@ public class Application {
 	 * is successfully deactivated and “False” otherwise.
 	 */
 	private boolean deactivateUser(String user_id) {
-		Connection conn = null;
-		Statement st = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		boolean result = false;
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
-			ps = conn.prepareStatement(
-					"INSERT INTO User (user_id, "
-					+ "user_password, "
-					+ "user_login_timestamp, "
-					+ "user_email, user_firstname, "
-					+ "user_lastname, "
-					+ "user_username, "
-					+ "user_image_url, "
-					+ "user_is_active) VALUES ('" 
-					+ user.getUserId() + "', '" 
-					+ user.getUserPassword() + "', '" 
-					+ user.getUserLogin() + "', '" 
-					+ user.getUserEmail() + "', '" 
-					+ user.getUserFirstName() + "', '" 
-					+ user.getUserLastName() + "', '" 
-					+ user.getUserUserName() + "', '" 
-					+ user.getUserImageUrl() + "', '" 
-					+ user.getUserIsActive() + "') ON DUPLICATE KEY UPDATE " 
-					+ "user = '" + 
-					+ "', event_start = '" + eventsArr[i].getStart() 
-					+ "', event_end ='" + eventsArr[i].getEnd() + "'; ");
-			result = ps.execute();
-		} catch (SQLException sqle) {
-			System.out.println("sqle: " + sqle.getMessage());
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("cnfe: " + cnfe.getMessage());
-		} finally {
-			// You always need to close the connection to the database
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (st != null) {
-					st.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch(SQLException sqle) {
-				System.out.println("sqle closing error: " + sqle.getMessage());
-			}
-		}
-		return result;
+		return true;
 	}
 	
 	/*
@@ -209,7 +103,7 @@ public class Application {
 	 * Function will return “True” if user is successfully deleted and “False” otherwise.
 	 */
 	private boolean deleteUser(String user_id) {
-		
+		return true;
 	}
 
 	/*
@@ -220,7 +114,7 @@ public class Application {
 	 * user is successfully added and “False” otherwise.
 	 */
 	private boolean addArtist(Artist newArtist) {
-		
+		return true;
 	}
 
 	/*
@@ -231,7 +125,7 @@ public class Application {
 	 * return “True” if user is successfully updated and “False” otherwise.
 	 */
 	private boolean updateArtist(Artist artist) {
-		
+		return true;
 	}
 
 	/*
@@ -244,7 +138,7 @@ public class Application {
 	 * and “False” otherwise.
 	 */
 	private boolean deleteArtist(String artist_id) {
-		
+		return true;
 	}
 
 	/*
@@ -255,7 +149,7 @@ public class Application {
 	 * “True” if follower is successfully added and “False” otherwise.
 	 */
 	private boolean follow(String user_id, String follower_id) {
-		
+		return true;
 	}
 
 	/*
@@ -266,7 +160,7 @@ public class Application {
 	 * successfully deleted and “False” otherwise.
 	 */
 	private boolean unfollow(String user_id, String follower_id) {
-		
+		return true;
 	}
 
 	/*
@@ -277,7 +171,7 @@ public class Application {
 	 * corresponding to each follower. Size of array will be the number of followers a user has.
 	 */
 	private String[] getFollowers(String user_id) {
-		
+		return null;
 	}
 
 	/*
@@ -289,7 +183,7 @@ public class Application {
 	 * number of users the user specified is following.
 	 */
 	private String[] getFollowing(String user_id) {
-		
+		return null;
 	}
 
 	/*
@@ -300,7 +194,7 @@ public class Application {
 	 * “True” if album is successfully added and “False” otherwise.
 	 */
 	private boolean addAlbum(Album newAlbum) {
-		
+		return true;
 	}
 
 	/*
@@ -312,7 +206,7 @@ public class Application {
 	 * deleted and “False” otherwise.
 	 */
 	private boolean deleteAlbum(String album_id) {
-		
+		return true;
 	}
 
 	/*
@@ -324,7 +218,7 @@ public class Application {
 	 * handling. Function will return “True” if song is successfully added and “False” otherwise.
 	 */
 	private boolean addSong(Song newSong, String album_id) {
-		
+		return true;
 	}
 
 	/*
@@ -335,7 +229,7 @@ public class Application {
 	 * if song is successfully added and “False” otherwise.
 	 */
 	private boolean addSong(Song newSong) {
-		
+		return true;
 	}
 
 	/*
@@ -346,7 +240,7 @@ public class Application {
 	 * “True” if addition is successful and “False” otherwise.
 	 */
 	private boolean likeSong(String song_id, String user_id) {
-		
+		return true;
 	}
 
 	/*
@@ -357,7 +251,7 @@ public class Application {
 	 * relationship is successfully deleted and “False” otherwise.
 	 */
 	private boolean unlikeSong(String song_id, String user_id) {
-		
+		return true;
 	}
 
 	/*
@@ -369,7 +263,7 @@ public class Application {
 	 * successfully deleted and “False” otherwise.
 	 */
 	private boolean deleteSong(String song_id) {
-		
+		return true;
 	}
 
 	/*
@@ -381,7 +275,7 @@ public class Application {
 	 * “False” otherwise.
 	 */
 	private boolean addPost(Post newPost) {
-		
+		return true;
 	}
 
 	/*
@@ -392,7 +286,7 @@ public class Application {
 	 * and null if no posts are found.
 	 */
 	private Post[] getPosts(String user_id) {
-		
+		return null;
 	}
 
 	/*
@@ -404,7 +298,7 @@ public class Application {
 	 * null if no posts are found.
 	 */
 	private Post[] getFeed(String user_id) {
-		
+		return null;
 	}
 
 	/*
@@ -415,7 +309,7 @@ public class Application {
 	 * Function will return “True” if addition is successful and “False” otherwise.
 	 */
 	private boolean likePost(String post_id, String user_id) {
-		
+		return true;
 	}
 
 	/*
@@ -426,7 +320,7 @@ public class Application {
 	 * return “True” if relationship is successfully deleted and “False” otherwise.
 	 */
 	private boolean unlikePost(String post_id, String user_id) {
-		
+		return true;
 	}
 
 	/*
@@ -438,7 +332,7 @@ public class Application {
 	 * “True” if addition is successful and “False” otherwise.
 	 */
 	private boolean sharePost(String post_id, String user_id) {
-		
+		return true;
 	}
 
 	/* 
@@ -450,7 +344,7 @@ public class Application {
 	 * if song is successfully deleted and “False” otherwise.
 	 */
 	private boolean deletePost(String post_id) {
-		
+		return true;
 	}
 
 }

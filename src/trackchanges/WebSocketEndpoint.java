@@ -3,6 +3,7 @@ package trackchanges;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -24,7 +25,7 @@ import org.json.simple.parser.ParseException;
 @ServerEndpoint (value="/endpoint")
 public class WebSocketEndpoint {
 
-	private static final Map<String, WorkerThread> sessions = new HashMap<String, WorkerThread>();
+	private static Map<String, WorkerThread> sessions = Collections.synchronizedMap(new HashMap<String, WorkerThread>());
 	private static final Logger log = Logger.getLogger("TrackChanges");
 	private static final JSONParser parser = new JSONParser(); 
 
@@ -55,7 +56,7 @@ public class WebSocketEndpoint {
 					String request = (String) json.get("request");
 					System.out.println("Decoded Json: " + request);
 					
-					// Sends request and body to handler to call Application.jaa functions
+					// Sends request and body to handler to call Application.java functions
 					parseSuccess = sessions.get(sessionId).handleRequest(request, json, session);
 					
 				} catch (ParseException pe) {
@@ -82,24 +83,259 @@ public class WebSocketEndpoint {
 		System.out.println("onError::" + e.getMessage());
 
 	}
-	   
-//	public void sendToAllSessions(Session session, byte[] data) {
-//
-//		lock.lock();
-//		try {
-//			ByteBuffer tobeSent = ByteBuffer.wrap(data);
-//			//loop through sessions
-//			for (String key : sessions.keySet()) {
-//				if (sessions.get(key)!=session) {
-//					sessions.get(key).getBasicRemote().sendBinary(tobeSent);
-//				}
-//			}		   
-//		}catch(IOException ioe) {   
-//			ioe.printStackTrace();
-//		}
-//		lock.unlock();
-//
-//	}
+	
+	class WorkerThread extends Thread {
+
+		private Session clientSession;
+
+		public WorkerThread(Session clientSession) {
+			this.clientSession = clientSession;
+			this.start();
+		}
+
+		/*
+		 * Handles the request received from iOS client
+		 */
+		@SuppressWarnings("unchecked")
+		public boolean handleRequest(String request, JSONObject json, Session session) {
+			Application app = new Application();
+			boolean handleSuccess = false;
+			if(request.equals("add_user")) {
+
+				User newUser = new User();
+				newUser.setUserId((String)json.get("user_id"));
+				newUser.setUserDisplayName((String)json.get("user_displayname"));
+				newUser.setUserImageUrl((String)json.get("user_imageurl"));
+				newUser.setUserLoginTimeStamp((String)json.get("user_logintimestamp"));
+				handleSuccess = app.addUser(newUser);
+
+			} else if(request.equals("follow")) {
+
+				String user_id = (String)json.get("user_id");
+				String follower_id = (String)json.get("follower_id");
+				handleSuccess = app.follow(user_id, follower_id);
+
+			} else if(request.equals("unfollow")) {
+
+				String user_id = (String)json.get("user_id");
+				String follower_id = (String)json.get("follower_id");
+				handleSuccess = app.unfollow(user_id, follower_id);
+
+			} else if(request.equals("get_followers")) {
+
+				String user_id = (String)json.get("user_id");
+				ArrayList<User> followers = app.getFollowers(user_id);
+				for(User follower : followers) {
+					System.out.println(follower.getUserId());
+				}
+				JSONArray jsonFollowersArray = new JSONArray();
+				for(User follower : followers) {
+					JSONObject jsonFollower = new JSONObject();
+					jsonFollower.put("user_id", follower.getUserId());
+					jsonFollower.put("user_displayname", follower.getUserDisplayName());
+					jsonFollower.put("user_imageurl", follower.getUserImageUrl());
+					jsonFollower.put("user_logintimestamp", follower.getUserLoginTimeStamp());
+					jsonFollowersArray.add(jsonFollower);
+				}
+				JSONObject response = new JSONObject();
+				response.put("response", "followers");
+				response.put("followers", jsonFollowersArray);
+				sendToSession(response.toString().getBytes());
+				handleSuccess = true;
+
+			} else if(request.equals("get_followings")) {
+
+				String user_id = (String)json.get("user_id");
+				ArrayList<User> followings = app.getFollowings(user_id);
+				for(User following : followings) {
+					System.out.println(following.getUserId());
+				}
+				JSONArray jsonFollowingsArray = new JSONArray();
+				for(User following : followings) {
+					JSONObject jsonFollowing = new JSONObject();
+					jsonFollowing.put("user_id", following.getUserId());
+					jsonFollowing.put("user_displayname", following.getUserDisplayName());
+					jsonFollowing.put("user_imageurl", following.getUserImageUrl());
+					jsonFollowing.put("user_logintimestamp", following.getUserLoginTimeStamp());
+					jsonFollowingsArray.add(jsonFollowing);
+				}
+				JSONObject response = new JSONObject();
+				response.put("response", "followings");
+				response.put("followings", jsonFollowingsArray);
+				sendToSession(response.toString().getBytes());
+				handleSuccess = true;
+
+			} else if(request.equals("add_album")) {
+
+				String album_id = (String)json.get("album_id");
+				handleSuccess = app.addAlbum(album_id);
+
+			} else if(request.equals("delete_album")) {
+
+				String album_id = (String)json.get("album_id");
+				handleSuccess = app.deleteAlbum(album_id);
+
+			} else if(request.equals("add_song")) {
+
+				String song_id = (String)json.get("song_id");
+				handleSuccess = app.addSong(song_id);
+
+			} else if(request.equals("delete_song")) {
+
+				String song_id = (String)json.get("song_id");
+				handleSuccess = app.deleteSong(song_id);
+
+			} else if(request.equals("like_song")) {
+
+				String song_id = (String)json.get("song_id");
+				String user_id = (String)json.get("user_id");
+				handleSuccess = app.likeSong(song_id, user_id);
+
+			} else if(request.equals("unlike_song")) {
+
+				String song_id = (String)json.get("song_id");
+				String user_id = (String)json.get("user_id");
+				handleSuccess = app.unlikeSong(song_id, user_id);
+
+			} else if(request.equals("add_post")) {
+
+
+
+				Post newPost = new Post();
+				newPost.setPostTimeStamp((String)json.get("post_timestamp"));
+				newPost.setPostUserId((String)json.get("post_user_id"));
+				System.out.println("1");
+				System.out.println((String)json.get("post_user_id"));
+				System.out.println("2");
+				newPost.setPostMessage((String)json.get("post_message"));
+				newPost.setPostSongId((String)json.get("post_song_id"));
+				newPost.setPostAlbumId((String)json.get("post_album_id"));
+				handleSuccess = app.addPost(newPost);
+
+			} else if(request.equals("get_posts")) {
+
+				ArrayList<Post> posts = new ArrayList<Post>();
+				String user_id = (String)json.get("user_id");
+				posts = app.getPosts(user_id);
+				JSONArray jsonFeedArray = new JSONArray();
+				for(Post post : posts) {
+					JSONObject jsonPost = new JSONObject();
+					jsonPost.put("post_id", post.getPostId());
+					jsonPost.put("post_timestamp", post.getPostTimeStamp());
+					jsonPost.put("user_id", post.getPostUserId());
+					jsonPost.put("post_message", post.getPostMessage());
+					jsonPost.put("song_id", post.getPostSongId());
+					jsonPost.put("album_id", post.getPostAlbumId());
+					jsonFeedArray.add(jsonPost);
+				}
+				
+				JSONObject response = new JSONObject();
+				response.put("response", "feed");
+				response.put("feed", jsonFeedArray);
+				sendToSession(response.toString().getBytes());
+				handleSuccess = true;
+
+			} else if(request.equals("get_feed")) {
+
+				ArrayList<Post> posts = new ArrayList<Post>();
+				String user_id = (String)json.get("user_id");
+				posts = app.getFeed(user_id);
+				JSONArray jsonFeedArray = new JSONArray();
+				for(Post post : posts) {
+					JSONObject jsonPost = new JSONObject();
+					jsonPost.put("post_id", post.getPostId());
+					jsonPost.put("post_timestamp", post.getPostTimeStamp());
+					jsonPost.put("user_id", post.getPostUserId());
+					jsonPost.put("post_message", post.getPostMessage());
+					jsonPost.put("song_id", post.getPostSongId());
+					jsonPost.put("album_id", post.getPostAlbumId());
+					jsonFeedArray.add(jsonPost);
+				}
+				
+				JSONObject response = new JSONObject();
+				response.put("response", "feed");
+				response.put("feed", jsonFeedArray);
+				sendToSession(response.toString().getBytes());
+				handleSuccess = true;
+
+			} else if(request.equals("like_post")) {
+				
+				String user_id = (String)json.get("user_id");
+				String post_id = (String)json.get("post_id");
+				handleSuccess = app.likePost(post_id, user_id);
+				
+			} else if(request.equals("unlike_post")) {
+				
+				String user_id = (String)json.get("user_id");
+				String post_id = (String)json.get("post_id");
+				handleSuccess = app.unlikePost(post_id, user_id);
+				
+			} else if(request.equals("share_post")) {
+				
+				String user_id = (String)json.get("user_id");
+				String post_id = (String)json.get("post_id");
+				String timestamp = (String)json.get("timestamp");
+		
+				handleSuccess = app.sharePost(post_id, user_id, timestamp);
+				
+			} else if(request.equals("delete_post")) {
+				
+				String post_id = (String)json.get("post_id");
+				handleSuccess = app.deletePost(post_id);
+				
+			}
+	 		return handleSuccess;
+		}
+		
+		/*
+		 * Function that sends data in byte array to the specified Client Session
+		 */
+		private void sendToSession(byte[] data) {
+
+			try {
+				ByteBuffer tobeSent = ByteBuffer.wrap(data);
+				this.clientSession.getBasicRemote().sendBinary(tobeSent);
+
+			} catch(IOException ioe) {
+				System.out.println("ioe: " + ioe.getMessage());
+			}
+
+		}
+		
+		public void updateFeed(Session session, byte[] data) {
+
+			synchronized(sessions) {
+				
+				try {
+					ByteBuffer tobeSent = ByteBuffer.wrap(data);
+					//loop through sessions
+					for (String key : sessions.keySet()) {
+						if (sessions.get(key)!=session) {
+							sessions.get(key).getBasicRemote().sendBinary(tobeSent);
+						}
+					}		   
+				}catch(IOException ioe) {   
+					ioe.printStackTrace();
+				}
+				
+			}
+
+		}
+
+		/*
+		 * Overrides run() method because we inherit from Thread class
+		 */
+		@SuppressWarnings("unchecked")
+		public void run() {
+			
+			JSONObject response = new JSONObject();
+			response.put("response", "connection");
+			response.put("status", "iOS client thread " + this.clientSession.getId() + " has started!");
+			sendToSession(response.toString().getBytes());
+			
+		}
+
+	}
 
 
 }

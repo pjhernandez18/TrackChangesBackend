@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.joda.time.DateTime;
 
@@ -22,6 +23,96 @@ public class Application {
 	 * “jdbc:mysql://localhost:3306/CalendarApp?user=root&password=&useSSL=false”;
 	 */
 	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/CSCI201ProjectDatabase?user=root&password=root&useSSL=false";
+	
+	// search
+	// check in user_id and user_displayname columns 
+	// see if variables in these columns contain the search_input
+	public ArrayList<User> search(String search_input) {
+		// "SELECT f.follower_id FROM Follow f WHERE f.user_id = '" + user_id + "';"
+		// "SELECT * from Follow WHERE follower_id=" + user_id
+		
+		/*
+		 * if(!userName.toLowerCase().contains(list.get(i).toLowerCase())) {
+		    			  continue;
+		   }
+		 */
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		
+		HashSet<String> duplicates = new HashSet<String>();
+		ArrayList<User> ret = new ArrayList<User>();
+		
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"SELECT * from User");
+			rs = ps.executeQuery();
+			while(rs.next()) {
+				
+				String tempUserId = rs.getString("user_id");
+				if(!tempUserId.toLowerCase().contains(search_input.toLowerCase())) {
+	    			  continue;
+				}
+				
+				duplicates.add(tempUserId.toLowerCase());
+				User newUser = new User();
+				newUser.setUserId(rs.getString("user_id"));
+				newUser.setUserDisplayName(rs.getString("user_displayname"));
+				newUser.setUserImageUrl(rs.getString("user_imageurl"));
+				newUser.setUserLoginTimeStamp(rs.getString("user_logintimestamp"));
+				ret.add(newUser);
+			}
+			
+			ps = conn.prepareStatement(
+					"SELECT * from User");
+			rs = ps.executeQuery();
+			
+			while(rs.next()) {
+				
+				String tempUserDisplay = rs.getString("user_displayname");
+				String tempUserId = rs.getString("user_id");
+				if(duplicates.contains(tempUserId)) {
+					continue;
+				}
+				if(!tempUserDisplay.toLowerCase().contains(search_input.toLowerCase())) {
+	    			continue;
+				}
+				
+				duplicates.add(tempUserDisplay.toLowerCase());
+				User newUser = new User();
+				newUser.setUserId(rs.getString("user_id"));
+				newUser.setUserDisplayName(rs.getString("user_displayname"));
+				newUser.setUserImageUrl(rs.getString("user_imageurl"));
+				newUser.setUserLoginTimeStamp(rs.getString("user_logintimestamp"));
+				ret.add(newUser);
+			}
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return ret;
+	}
+
+	
 	
 	// Functions:
 	/*
@@ -712,7 +803,9 @@ public class Application {
 	 * a minimum level of error handling. Function will return an array of Post objects 
 	 * and null if no posts are found.
 	 */
-	public Post[] getPosts(String user_id) {
+	public ArrayList<Post> getPosts(String user_id) {
+		
+		//"SELECT f.follower_id FROM Follow f WHERE f.user_id = '" + user_id + "';"
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -723,8 +816,8 @@ public class Application {
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			// not sure how to delete based off two parameters
 			ps = conn.prepareStatement(
-					"SELECT * from Post WHERE user_id LIKE?");
-			ps.setString(1, "%" + user_id + "%");
+					"SELECT * from Post WHERE user_id= '" + user_id + "';");
+			//ps.setString(1, "%" + user_id + "%");
 	    	  
 	    	  rs = ps.executeQuery();
 	    	  while(rs.next()){
@@ -734,12 +827,18 @@ public class Application {
 	    		  String tempPostTimeStamp = rs.getString("post_timestamp");
 	    		  String tempUserId = rs.getString("user_id");
 	    		  String tempPostMessage = rs.getString("post_message");
+	    		  String tempPostSongId = rs.getString("song_id");
+	    		  String tempPostAlbumId = rs.getString("album_id");
+	    		  
 	    		  
 	    		  tempPost.setPostId(tempPostId);
 	    		  tempPost.setPostTimeStamp(tempPostTimeStamp);
 	    		  tempPost.setPostUserId(tempUserId);
 	    		  tempPost.setPostMessage(tempPostMessage);
+	    		  tempPost.setPostSongId(tempPostSongId);
+	    		  tempPost.setPostAlbumId(tempPostAlbumId);
 	    		  
+	    		  /*
 	    		  PreparedStatement ps2 = conn.prepareStatement(
 	    				  "SELECT * from PostAlbum WHERE user_id LIKE?");
 	    		  ps2.setString(1, "%" + user_id + "%");
@@ -762,7 +861,7 @@ public class Application {
 	    		  }
 	    		  else {
 	    			  tempPost.setPostSongId(rs3.getString(null));
-	    		  }
+	    		  }*/
 	    		  tempRes.add(tempPost);
 	    	  }
 		} catch (SQLException sqle) {
@@ -785,12 +884,7 @@ public class Application {
 				System.out.println("sqle closing error: " + sqle.getMessage());
 			}
 		}
-		
-		Post [] res = new Post[tempRes.size()];
-		for(int i = 0; i < tempRes.size(); ++i) {
-			res[i] = tempRes.get(i);
-		}
-		return res;
+		return tempRes;
 	}
 
 	/*
@@ -801,7 +895,7 @@ public class Application {
 	 * level of error handling. Function will return an array of Post objects and 
 	 * null if no posts are found.
 	 */
-	public Post[] getFeed(String user_id) {
+	public ArrayList<Post> getFeed(String user_id) {
 		Connection conn = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -815,8 +909,8 @@ public class Application {
 			
 			// first select the users that the target user is following
 			ps = conn.prepareStatement(
-					"SELECT * from Follow WHERE follower_id LIKE?");
-			ps.setString(1, "%" + user_id + "%");
+					"SELECT * FROM Follow f WHERE f.follower_id = '" + user_id + "';");
+			//ps.setString(1, "%" + user_id + "%");
 	    	  
 	    	  rs = ps.executeQuery();
 	    	  ArrayList<String> following = new ArrayList<String>();
@@ -829,8 +923,8 @@ public class Application {
 	    	  // add posts accordingly
 	    	  for(int i = 0; i < following.size(); ++i) {
 		  			ps = conn.prepareStatement(
-							"SELECT * from Post WHERE user_id LIKE?");
-					ps.setString(1, "%" + following.get(i) + "%");
+							"SELECT * from Post WHERE user_id= '" + following.get(i) + "';");
+					//ps.setString(1, "%" + following.get(i) + "%");
 					 rs = ps.executeQuery();
 		    	  while(rs.next()){
 		    		  Post tempPost = new Post();
@@ -839,12 +933,18 @@ public class Application {
 		    		  String tempPostTimeStamp = rs.getString("post_timestamp");
 		    		  String tempUserId = rs.getString("user_id");
 		    		  String tempPostMessage = rs.getString("post_message");
+		    		  String tempPostSongId = rs.getString("song_id");
+		    		  String tempPostAlbumId = rs.getString("album_id");
+		    		  
 		    		  
 		    		  tempPost.setPostId(tempPostId);
 		    		  tempPost.setPostTimeStamp(tempPostTimeStamp);
 		    		  tempPost.setPostUserId(tempUserId);
 		    		  tempPost.setPostMessage(tempPostMessage);
+		    		  tempPost.setPostSongId(tempPostSongId);
+		    		  tempPost.setPostAlbumId(tempPostAlbumId);
 		    		  
+		    		  /*
 		    		  PreparedStatement ps2 = conn.prepareStatement(
 		    				  "SELECT * from PostAlbum WHERE user_id LIKE?");
 		    		  ps2.setString(1, "%" + user_id + "%");
@@ -867,7 +967,7 @@ public class Application {
 		    		  }
 		    		  else {
 		    			  tempPost.setPostSongId(rs3.getString(null));
-		    		  }
+		    		  }*/
 		    		  tempRes.add(tempPost);
 		    	  }
 	    	  }
@@ -892,12 +992,7 @@ public class Application {
 				System.out.println("sqle closing error: " + sqle.getMessage());
 			}
 		}
-		
-		Post [] res = new Post[tempRes.size()];
-		for(int i = 0; i < tempRes.size(); ++i) {
-			res[i] = tempRes.get(i);
-		}
-		return res;
+		return tempRes;
 	}
 
 	/*
@@ -1090,13 +1185,14 @@ public class Application {
 					"DELETE FROM PostShare WHERE post_id=" + post_id);
 			ps.execute();
 			
+			/*
 			ps = conn.prepareStatement(
 					"DELETE FROM PostSong WHERE post_id=" + post_id);
 			ps.execute();
 			
 			ps = conn.prepareStatement(
 					"DELETE FROM PostAlbum WHERE post_id=" + post_id);
-			ps.execute();
+			ps.execute();*/
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());
 		} catch (ClassNotFoundException cnfe) {

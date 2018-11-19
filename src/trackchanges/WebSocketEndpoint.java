@@ -26,6 +26,7 @@ import org.json.simple.parser.ParseException;
 public class WebSocketEndpoint {
 
 	private static Map<String, WorkerThread> sessions = Collections.synchronizedMap(new HashMap<String, WorkerThread>());
+	private static Map<String, String> clientSessionId = Collections.synchronizedMap(new HashMap<String, String>());
 	private static final Logger log = Logger.getLogger("TrackChanges");
 	private static final JSONParser parser = new JSONParser(); 
 
@@ -38,6 +39,16 @@ public class WebSocketEndpoint {
 
 	@OnClose
 	public void close(Session session) {
+		synchronized(sessions) {
+			sessions.remove(session.getId());
+			synchronized(clientSessionId) {
+				for(String sessionId : clientSessionId.values()) {
+					if(sessionId.equals(session.getId())) {
+						clientSessionId.remove(session.getId());
+					}
+				}
+			}
+		}
 		System.out.println("onClose:: " + session.getId());	
 		log.info("Connection closed by id: " + session.getId());
 	}
@@ -57,7 +68,7 @@ public class WebSocketEndpoint {
 					System.out.println("Decoded Json: " + request);
 					
 					// Sends request and body to handler to call Application.java functions
-					parseSuccess = sessions.get(sessionId).handleRequest(request, json, session);
+					parseSuccess = sessions.get(sessionId).handleRequest(request, json);
 					
 				} catch (ParseException pe) {
 					System.out.println("pe: " + pe.getMessage());
@@ -87,6 +98,11 @@ public class WebSocketEndpoint {
 	class WorkerThread extends Thread {
 
 		private Session clientSession;
+		private String user_id = null;
+		
+		public String getUserId() {
+			return user_id;
+		}
 
 		public WorkerThread(Session clientSession) {
 			this.clientSession = clientSession;
@@ -97,11 +113,15 @@ public class WebSocketEndpoint {
 		 * Handles the request received from iOS client
 		 */
 		@SuppressWarnings("unchecked")
-		public boolean handleRequest(String request, JSONObject json, Session session) {
+		public boolean handleRequest(String request, JSONObject json) {
 			Application app = new Application();
 			boolean handleSuccess = false;
 			if(request.equals("add_user")) {
 
+				this.user_id = (String)json.get("user_id");
+				synchronized(clientSessionId) {
+					clientSessionId.put(this.user_id, this.clientSession.getId());
+				}
 				User newUser = new User();
 				newUser.setUserId((String)json.get("user_id"));
 				newUser.setUserDisplayName((String)json.get("user_displayname"));
@@ -140,7 +160,7 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "followers");
 				response.put("followers", jsonFollowersArray);
-				sendToSession(response.toString().getBytes());
+				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
 			} else if(request.equals("get_followings")) {
@@ -162,7 +182,7 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "followings");
 				response.put("followings", jsonFollowingsArray);
-				sendToSession(response.toString().getBytes());
+				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
 			} else if(request.equals("add_album")) {
@@ -199,8 +219,6 @@ public class WebSocketEndpoint {
 
 			} else if(request.equals("add_post")) {
 
-
-
 				Post newPost = new Post();
 				newPost.setPostTimeStamp((String)json.get("post_timestamp"));
 				newPost.setPostUserId((String)json.get("post_user_id"));
@@ -210,7 +228,20 @@ public class WebSocketEndpoint {
 				newPost.setPostMessage((String)json.get("post_message"));
 				newPost.setPostSongId((String)json.get("post_song_id"));
 				newPost.setPostAlbumId((String)json.get("post_album_id"));
-				handleSuccess = app.addPost(newPost);
+				int post_id = app.addPost(newPost);
+				if(handleSuccess) {
+					Post post = app.getPost(post_id);
+					JSONObject response = new JSONObject();
+					response.put("response", "post_added");
+					response.put("post_id", post.getPostId());
+					response.put("post_timestamp", post.getPostTimeStamp());
+					response.put("user_id", post.getPostUserId());
+					response.put("post_message", post.getPostMessage());
+					response.put("song_id", post.getPostSongId());
+					response.put("album_id", post.getPostAlbumId());
+					sendToSession(this.clientSession, response.toString().getBytes());
+				}
+				handleSuccess = true;
 
 			} else if(request.equals("get_posts")) {
 
@@ -232,7 +263,7 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "feed");
 				response.put("feed", jsonFeedArray);
-				sendToSession(response.toString().getBytes());
+				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
 			} else if(request.equals("get_feed")) {
@@ -255,7 +286,7 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "feed");
 				response.put("feed", jsonFeedArray);
-				sendToSession(response.toString().getBytes());
+				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
 			} else if(request.equals("like_post")) {
@@ -273,10 +304,20 @@ public class WebSocketEndpoint {
 			} else if(request.equals("share_post")) {
 				
 				String user_id = (String)json.get("user_id");
-				String post_id = (String)json.get("post_id");
+				int post_id = (int)json.get("post_id");
 				String timestamp = (String)json.get("timestamp");
 		
 				handleSuccess = app.sharePost(post_id, user_id, timestamp);
+				Post post = app.getPost(post_id);
+				JSONObject response = new JSONObject();
+				response.put("response", "post_added");
+				response.put("post_id", post.getPostId());
+				response.put("post_timestamp", post.getPostTimeStamp());
+				response.put("user_id", post.getPostUserId());
+				response.put("post_message", post.getPostMessage());
+				response.put("song_id", post.getPostSongId());
+				response.put("album_id", post.getPostAlbumId());
+				updateFeeds(app.getFollowers(user_id), response.toString().getBytes());
 				
 			} else if(request.equals("delete_post")) {
 				
@@ -290,7 +331,7 @@ public class WebSocketEndpoint {
 		/*
 		 * Function that sends data in byte array to the specified Client Session
 		 */
-		private void sendToSession(byte[] data) {
+		private void sendToSession(Session session, byte[] data) {
 
 			try {
 				ByteBuffer tobeSent = ByteBuffer.wrap(data);
@@ -302,20 +343,18 @@ public class WebSocketEndpoint {
 
 		}
 		
-		public void updateFeed(Session session, byte[] data) {
+		private void updateFeeds(ArrayList<User> followers, byte[] data) {
 
 			synchronized(sessions) {
 				
-				try {
-					ByteBuffer tobeSent = ByteBuffer.wrap(data);
-					//loop through sessions
-					for (String key : sessions.keySet()) {
-						if (sessions.get(key)!=session) {
-							sessions.get(key).getBasicRemote().sendBinary(tobeSent);
-						}
-					}		   
-				}catch(IOException ioe) {   
-					ioe.printStackTrace();
+				for(User follower : followers) {
+					
+					if(clientSessionId.get(follower.getUserId()) != null) {
+						
+						sendToSession(sessions.get(clientSessionId.get(follower.getUserId())).clientSession, data);
+						
+					}
+					
 				}
 				
 			}
@@ -331,7 +370,7 @@ public class WebSocketEndpoint {
 			JSONObject response = new JSONObject();
 			response.put("response", "connection");
 			response.put("status", "iOS client thread " + this.clientSession.getId() + " has started!");
-			sendToSession(response.toString().getBytes());
+			sendToSession(this.clientSession, response.toString().getBytes());
 			
 		}
 

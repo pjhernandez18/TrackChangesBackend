@@ -74,14 +74,14 @@ public class Application {
 
 				String tempUserDisplay = rs.getString("user_displayname");
 				String tempUserId = rs.getString("user_id");
-				if(duplicates.contains(tempUserId)) {
+				if(duplicates.contains(tempUserId.toLowerCase())) {
 					continue;
 				}
 				if(!tempUserDisplay.toLowerCase().contains(search_input.toLowerCase())) {
 					continue;
 				}
 
-				duplicates.add(tempUserDisplay.toLowerCase());
+				duplicates.add(tempUserId.toLowerCase());
 				User newUser = new User();
 				newUser.setUserId(rs.getString("user_id"));
 				newUser.setUserDisplayName(rs.getString("user_displayname"));

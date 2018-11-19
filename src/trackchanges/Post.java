@@ -62,7 +62,7 @@ public class Post {
 	}
 	
 	public String getPostSongId() {
-		return post_message;
+		return post_songId;
 	}
 	
 	public void setPostSongId(String post_songId) {

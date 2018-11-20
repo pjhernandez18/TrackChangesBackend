@@ -167,7 +167,45 @@ public class Application {
 		}
 		return result;
 	}
-
+	
+	
+	// isFollowing
+	public boolean isFollowing(String user_id, String follower_id) {
+		Connection conn = null;
+		Statement st = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		boolean result = false;
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
+			ps = conn.prepareStatement(
+					"SELECT * FROM Follow WHERE user_id = '" + user_id + "' AND " + "follower_id = '" + follower_id + "';");
+			result = ps.execute();
+		} catch (SQLException sqle) {
+			System.out.println("sqle: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe: " + cnfe.getMessage());
+		} finally {
+			// You always need to close the connection to the database
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing error: " + sqle.getMessage());
+			}
+		}
+		return result;
+	}
+	
+	
 	/*
 	 * This function will be responsible for adding a new follower relationship 
 	 * into the database with “INSERT” statements after a connection using the 
@@ -186,7 +224,7 @@ public class Application {
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"INSERT INTO Follow (user_id, "
-							+ "follow_id) VALUES ('" 
+							+ "follower_id) VALUES ('" 
 							+ user_id + "', '"  
 							+ follower_id + "');");
 			result = ps.execute();

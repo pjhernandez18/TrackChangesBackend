@@ -314,8 +314,13 @@ public class Application {
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement("SELECT f.follower_id FROM Follow f WHERE f.user_id = '" + user_id + "';");
 			rs = ps.executeQuery();
-			while(rs.next()){
-				result.add(rs.getString("follower_id"));
+			if(!rs.next()) {
+				return new ArrayList<User>();
+			} else {
+				rs.beforeFirst();
+				while(rs.next()) {
+					result.add(rs.getString("follower_id"));		
+				}
 			}
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());
@@ -403,8 +408,13 @@ public class Application {
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement("SELECT f.user_id FROM Follow f WHERE f.follower_id = '" + user_id + "';");
 			rs = ps.executeQuery();
-			while(rs.next()){
-				result.add(rs.getString("user_id"));
+			if(!rs.next()) {
+				return new ArrayList<User>();
+			} else {
+				rs.beforeFirst();
+				while(rs.next()) {
+					result.add(rs.getString("user_id"));		
+				}
 			}
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());

@@ -357,6 +357,7 @@ public class WebSocketEndpoint {
 			}else if(request.equals("search_users")) {
 
 				String search_input = (String)json.get("search_term");
+				System.out.println(search_input);
 				ArrayList<User> searchResults = app.search(search_input);
 				JSONArray jsonSearchResults = new JSONArray();
 				for(User user : searchResults) {
@@ -372,6 +373,7 @@ public class WebSocketEndpoint {
 				response.put("search_results", jsonSearchResults);
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
+				System.out.println(search_input);
 
 			}
 			

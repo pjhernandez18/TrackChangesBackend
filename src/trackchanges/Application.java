@@ -22,7 +22,7 @@ public class Application {
 	 * necessary for the application, for example:  
 	 * “jdbc:mysql://localhost:3306/CalendarApp?user=root&password=&useSSL=false”;
 	 */
-	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/CSCI201ProjectDatabase?user=root&password=root&useSSL=false";
+	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/CSCI201?user=root&password=&useSSL=false";
 
 	// search
 	// check in user_id and user_displayname columns 
@@ -270,7 +270,7 @@ public class Application {
 			// not sure how to delete based off two parameters
 			
 			ps = conn.prepareStatement(
-					"DELETE FROM Follow WHERE user_id = '" + user_id + "' AND " + "follower_id = '" + follower_id + "';");
+					"DELETE FROM Follow WHERE user_id = '" + follower_id + "' AND " + "follower_id = '" + user_id + "';");
 			result = ps.execute();
 		} catch (SQLException sqle) {
 			System.out.println("sqle: " + sqle.getMessage());

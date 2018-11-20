@@ -189,6 +189,7 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "followers");
 				response.put("followers", jsonFollowersArray);
+				//System.out.println(x);
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 

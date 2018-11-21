@@ -22,6 +22,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
 @ServerEndpoint (value="/endpoint")
 public class WebSocketEndpoint {
 
@@ -117,6 +122,10 @@ public class WebSocketEndpoint {
 		 */
 		@SuppressWarnings("unchecked")
 		public boolean handleRequest(String request, JSONObject json) {
+			
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			JsonParser jp = new JsonParser();
+			
 			Application app = new Application();
 			boolean handleSuccess = false;
 			if(request.equals("add_user")) {
@@ -150,7 +159,12 @@ public class WebSocketEndpoint {
 				// check this jeff
 				response.put("response", "is_following");
 				response.put("is_following", handleSuccess);
-				System.out.println(response.toJSONString());
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 
 			}else if(request.equals("follow")) {
@@ -193,7 +207,12 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "followers");
 				response.put("followers", jsonFollowersArray);
-				System.out.println(response.toJSONString());
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -221,7 +240,12 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "followings");
 				response.put("followings", jsonFollowingsArray);
-				System.out.println(response.toJSONString());
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -269,18 +293,22 @@ public class WebSocketEndpoint {
 				newPost.setPostSongId((String)json.get("post_song_id"));
 				newPost.setPostAlbumId((String)json.get("post_album_id"));
 				int post_id = app.addPost(newPost);
-				if(handleSuccess) {
-					Post post = app.getPost(post_id);
-					JSONObject response = new JSONObject();
-					response.put("response", "post_added");
-					response.put("post_id", post.getPostId());
-					response.put("post_timestamp", post.getPostTimeStamp());
-					response.put("user_id", post.getPostUserId());
-					response.put("post_message", post.getPostMessage());
-					response.put("song_id", post.getPostSongId());
-					response.put("album_id", post.getPostAlbumId());
-					sendToSession(this.clientSession, response.toString().getBytes());
-				}
+				Post post = app.getPost(post_id);
+				JSONObject response = new JSONObject();
+				response.put("response", "post_added");
+				response.put("post_id", post.getPostId());
+				response.put("post_timestamp", post.getPostTimeStamp());
+				response.put("user_id", post.getPostUserId());
+				response.put("post_message", post.getPostMessage());
+				response.put("song_id", post.getPostSongId());
+				response.put("album_id", post.getPostAlbumId());
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
+				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
 			} else if(request.equals("get_posts")) {
@@ -303,6 +331,12 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "feed");
 				response.put("feed", jsonFeedArray);
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -326,6 +360,12 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "feed");
 				response.put("feed", jsonFeedArray);
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -357,6 +397,12 @@ public class WebSocketEndpoint {
 				response.put("post_message", post.getPostMessage());
 				response.put("song_id", post.getPostSongId());
 				response.put("album_id", post.getPostAlbumId());
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				updateFeeds(app.getFollowers(user_id), response.toString().getBytes());
 
 			} else if(request.equals("delete_post")) {
@@ -381,7 +427,12 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "search_results");
 				response.put("search_results", jsonSearchResults);
-				System.out.println(response.toJSONString());
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 

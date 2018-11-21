@@ -151,8 +151,8 @@ public class WebSocketEndpoint {
 
 			}else if(request.equals("follow")) {
 				
-				String user_id = (String)json.get("follower_id");
-				String follower_id = (String)json.get("user_id");
+				String user_id = (String)json.get("user_id");
+				String follower_id = (String)json.get("follower_id");
 				System.out.println("1");
 				System.out.println(user_id);
 				System.out.println(follower_id);

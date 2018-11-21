@@ -64,7 +64,12 @@ public class WebSocketEndpoint {
 			try {
 				JSONObject json = (JSONObject) parser.parse(parsedJson);
 				String request = (String) json.get("request");
-				System.out.println("Decoded Json: " + request);
+				System.out.println("");
+				for(int i = 0; i < 50; i++) {
+					System.out.print("-");
+				}
+				System.out.println("");
+				System.out.println("Request: " + request);
 
 				// Sends request and body to handler to call Application.java functions
 				parseSuccess = sessions.get(session.getId()).handleRequest(request, json);
@@ -135,11 +140,9 @@ public class WebSocketEndpoint {
 				String user_id = (String)json.get("user_id");
 				String follower_id = (String)json.get("follower_id");
 				
-				// debugging 
-				System.out.println("1");
-				System.out.println(user_id);
-				System.out.println(follower_id);
-				System.out.println("2");
+				// debugging
+				System.out.println("user_id: " + user_id);
+				System.out.println("follower_id: " + follower_id);
 				
 				handleSuccess = app.isFollowing(user_id, follower_id);
 				JSONObject response = new JSONObject();
@@ -147,35 +150,36 @@ public class WebSocketEndpoint {
 				// check this jeff
 				response.put("response", "is_following");
 				response.put("is_following", handleSuccess);
+				System.out.println(response.toJSONString());
 				sendToSession(this.clientSession, response.toString().getBytes());
 
 			}else if(request.equals("follow")) {
 				
 				String user_id = (String)json.get("user_id");
 				String follower_id = (String)json.get("follower_id");
-				System.out.println("1");
-				System.out.println(user_id);
-				System.out.println(follower_id);
-				System.out.println("2");
+				System.out.println("user_id: " + user_id);
+				System.out.println("follower_id: " + follower_id);
 				handleSuccess = app.follow(user_id, follower_id);
 
 			} else if(request.equals("unfollow")) {
-				// check logic here
+				
 				String user_id = (String)json.get("user_id");
 				String follower_id = (String)json.get("follower_id");
-				System.out.println("1");
-				System.out.println(user_id);
-				System.out.println(follower_id);
-				System.out.println("2");
+				System.out.println("user_id: " + user_id);
+				System.out.println("follower_id: " + follower_id);
 				handleSuccess = app.unfollow(user_id, follower_id);
 
 			} else if(request.equals("get_followers")) {
 				
-				System.out.println((String)json.get("user_id"));
 				String user_id = (String)json.get("user_id");
 				ArrayList<User> followers = app.getFollowers(user_id);
-				for(User follower : followers) {
-					System.out.println(follower.getUserId());
+				System.out.println("List of Followers for " + user_id + ": ");
+				if(followers != null) {
+					for(User follower : followers) {
+						System.out.println("\t" + follower.getUserId());
+					}
+				} else {
+					System.out.println("\t None");
 				}
 				JSONArray jsonFollowersArray = new JSONArray();
 				for(User follower : followers) {
@@ -189,7 +193,7 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "followers");
 				response.put("followers", jsonFollowersArray);
-				//System.out.println(x);
+				System.out.println(response.toJSONString());
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -197,8 +201,13 @@ public class WebSocketEndpoint {
 
 				String user_id = (String)json.get("user_id");
 				ArrayList<User> followings = app.getFollowings(user_id);
-				for(User following : followings) {
-					System.out.println(following.getUserId());
+				System.out.println("List of Followings for " + user_id + ": ");
+				if(followings != null) {
+					for(User following : followings) {
+						System.out.println("\t" + following.getUserId());
+					}
+				} else {
+					System.out.println("\t None");
 				}
 				JSONArray jsonFollowingsArray = new JSONArray();
 				for(User following : followings) {
@@ -212,6 +221,7 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "followings");
 				response.put("followings", jsonFollowingsArray);
+				System.out.println(response.toJSONString());
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -357,7 +367,7 @@ public class WebSocketEndpoint {
 			}else if(request.equals("search_users")) {
 
 				String search_input = (String)json.get("search_term");
-				System.out.println(search_input);
+				System.out.println("Search Term: " + search_input);
 				ArrayList<User> searchResults = app.search(search_input);
 				JSONArray jsonSearchResults = new JSONArray();
 				for(User user : searchResults) {
@@ -371,9 +381,9 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "search_results");
 				response.put("search_results", jsonSearchResults);
+				System.out.println(response.toJSONString());
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
-				System.out.println(search_input);
 
 			}
 			

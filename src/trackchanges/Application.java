@@ -22,7 +22,8 @@ public class Application {
 	 * necessary for the application, for example:  
 	 * “jdbc:mysql://localhost:3306/CalendarApp?user=root&password=&useSSL=false”;
 	 */
-	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/CSCI201ProjectDatabase?user=root&password=root&useSSL=false";
+	private static final String DATABASE_CONNECTION_URL = "jdbc:mysql://localhost:3306/CSCI201?user=root&password=&useSSL=false";
+	private static final String SQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
 
 	// search
 	// check in user_id and user_displayname columns 
@@ -45,7 +46,7 @@ public class Application {
 		ArrayList<User> ret = new ArrayList<User>();
 
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"SELECT * from User");
@@ -130,7 +131,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"INSERT INTO User ("
@@ -178,7 +179,7 @@ public class Application {
 		boolean result = false;
 		
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"SELECT * FROM Follow WHERE user_id = '" + user_id + "' AND " + "follower_id = '" + follower_id + "';");
@@ -232,7 +233,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"INSERT INTO Follow (user_id, "
@@ -277,7 +278,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			// not sure how to delete based off two parameters
 			
@@ -322,7 +323,7 @@ public class Application {
 		ArrayList<String> result = new ArrayList<String>(); 
 		
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement("SELECT f.follower_id FROM Follow f WHERE f.user_id = '" + user_id + "';");
 			rs = ps.executeQuery();
@@ -358,7 +359,7 @@ public class Application {
 		ArrayList<User> followers = new ArrayList<User>();
 		for(String follower : result) {
 			try {
-				Class.forName("com.mysql.cj.jdbc.Driver");
+				Class.forName(SQL_DRIVER_CLASS);
 				conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 				ps = conn.prepareStatement("SELECT "
 						+ "u.user_id, "
@@ -416,7 +417,7 @@ public class Application {
 		PreparedStatement ps = null;
 		ArrayList<String> result = new ArrayList<String>(); 
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement("SELECT f.user_id FROM Follow f WHERE f.follower_id = '" + user_id + "';");
 			rs = ps.executeQuery();
@@ -452,7 +453,7 @@ public class Application {
 		ArrayList<User> followings = new ArrayList<User>();
 		for(String following : result) {
 			try {
-				Class.forName("com.mysql.cj.jdbc.Driver");
+				Class.forName(SQL_DRIVER_CLASS);
 				conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 				ps = conn.prepareStatement("SELECT "
 						+ "u.user_id, "
@@ -510,7 +511,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement("INSERT INTO Album (album_id) VALUES ('" + album_id+ "');");
 			result = ps.execute();
@@ -552,7 +553,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 
 			ps = conn.prepareStatement(
@@ -598,7 +599,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement("INSERT INTO Song (song_id) VALUES ('" + song_id+ "');");
 			result = ps.execute();
@@ -640,7 +641,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"INSERT INTO SongLike (song_id, "
@@ -687,7 +688,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			// not sure how to delete based off two parameters
 			
@@ -732,7 +733,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"DELETE FROM Song WHERE song_id=?");
@@ -789,7 +790,7 @@ public class Application {
 			System.out.println(newPost.getPostTimeStamp());
 			System.out.println(newPost.getPostSongId());
 			System.out.println(newPost.getPostAlbumId());
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			System.out.println("3");
 			System.out.println(newPost.getPostUserId());
@@ -868,7 +869,7 @@ public class Application {
 		PreparedStatement ps = null;
 		ArrayList<Post> tempRes = new ArrayList<Post>(); 
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			// not sure how to delete based off two parameters
 			ps = conn.prepareStatement(
@@ -958,7 +959,7 @@ public class Application {
 		PreparedStatement ps = null;
 		ArrayList<Post> tempRes = new ArrayList<Post>(); 
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 
 
@@ -1066,7 +1067,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"INSERT INTO PostLike (post_id, "
@@ -1113,7 +1114,7 @@ public class Application {
 		boolean result = false;
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"DELETE FROM PostLike WHERE post_id = '" + post_id + "' AND user_id = '" + user_id + "';");
@@ -1159,7 +1160,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"SELECT * from Post WHERE post_id = '" + post_id + "';");
@@ -1218,7 +1219,7 @@ public class Application {
 		PreparedStatement ps = null;
 		Post ret = new Post();
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			// not sure how to delete based off two parameters
 			ps = conn.prepareStatement(
@@ -1276,7 +1277,7 @@ public class Application {
 		PreparedStatement ps = null;
 		boolean result = false;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
 			ps = conn.prepareStatement(
 					"DELETE FROM Post WHERE post_id = '" + post_id + "';");

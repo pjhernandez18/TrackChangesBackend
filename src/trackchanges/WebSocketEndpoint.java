@@ -284,24 +284,24 @@ public class WebSocketEndpoint {
 			} else if(request.equals("add_post")) {
 
 				Post newPost = new Post();
-				newPost.setPostTimeStamp((String)json.get("post_timestamp"));
-				newPost.setPostUserId((String)json.get("post_user_id"));
-				System.out.println("1");
-				System.out.println((String)json.get("post_user_id"));
-				System.out.println("2");
 				newPost.setPostMessage((String)json.get("post_message"));
+				newPost.setPostMessage((String)json.get("post_type"));
 				newPost.setPostSongId((String)json.get("post_song_id"));
+				newPost.setPostUserId((String)json.get("post_user_id"));
 				newPost.setPostAlbumId((String)json.get("post_album_id"));
+				newPost.setPostTimeStamp((String)json.get("post_timestamp"));
 				int post_id = app.addPost(newPost);
+				
 				Post post = app.getPost(post_id);
 				JSONObject response = new JSONObject();
 				response.put("response", "post_added");
 				response.put("post_id", post.getPostId());
+				response.put("post_type", post.getPostType());
 				response.put("post_timestamp", post.getPostTimeStamp());
-				response.put("user_id", post.getPostUserId());
+				response.put("post_user_id", post.getPostUserId());
 				response.put("post_message", post.getPostMessage());
-				response.put("song_id", post.getPostSongId());
-				response.put("album_id", post.getPostAlbumId());
+				response.put("post_song_id", post.getPostSongId());
+				response.put("post_album_id", post.getPostAlbumId());
 				
 				// Debug output
 				JsonElement je = jp.parse(response.toJSONString());
@@ -320,11 +320,12 @@ public class WebSocketEndpoint {
 				for(Post post : posts) {
 					JSONObject jsonPost = new JSONObject();
 					jsonPost.put("post_id", post.getPostId());
+					jsonPost.put("post_type", post.getPostType());
 					jsonPost.put("post_timestamp", post.getPostTimeStamp());
-					jsonPost.put("user_id", post.getPostUserId());
+					jsonPost.put("post_user_id", post.getPostUserId());
 					jsonPost.put("post_message", post.getPostMessage());
-					jsonPost.put("song_id", post.getPostSongId());
-					jsonPost.put("album_id", post.getPostAlbumId());
+					jsonPost.put("post_song_id", post.getPostSongId());
+					jsonPost.put("post_album_id", post.getPostAlbumId());
 					jsonFeedArray.add(jsonPost);
 				}
 
@@ -349,11 +350,12 @@ public class WebSocketEndpoint {
 				for(Post post : posts) {
 					JSONObject jsonPost = new JSONObject();
 					jsonPost.put("post_id", post.getPostId());
+					jsonPost.put("post_type", post.getPostType());
 					jsonPost.put("post_timestamp", post.getPostTimeStamp());
-					jsonPost.put("user_id", post.getPostUserId());
+					jsonPost.put("post_user_id", post.getPostUserId());
 					jsonPost.put("post_message", post.getPostMessage());
-					jsonPost.put("song_id", post.getPostSongId());
-					jsonPost.put("album_id", post.getPostAlbumId());
+					jsonPost.put("post_song_id", post.getPostSongId());
+					jsonPost.put("post_album_id", post.getPostAlbumId());
 					jsonFeedArray.add(jsonPost);
 				}
 
@@ -392,11 +394,12 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "post_added");
 				response.put("post_id", post.getPostId());
+				response.put("post_type", post.getPostType());
 				response.put("post_timestamp", post.getPostTimeStamp());
-				response.put("user_id", post.getPostUserId());
+				response.put("post_user_id", post.getPostUserId());
 				response.put("post_message", post.getPostMessage());
-				response.put("song_id", post.getPostSongId());
-				response.put("album_id", post.getPostAlbumId());
+				response.put("post_song_id", post.getPostSongId());
+				response.put("post_album_id", post.getPostAlbumId());
 				
 				// Debug output
 				JsonElement je = jp.parse(response.toJSONString());
@@ -466,6 +469,10 @@ public class WebSocketEndpoint {
 
 						sendToSession(sessions.get(clientSessionId.get(follower.getUserId())).clientSession, data);
 
+					} else {
+						
+						System.out.println(follower.getUserDisplayName() + " is not online.");
+						
 					}
 
 				}

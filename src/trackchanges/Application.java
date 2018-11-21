@@ -784,29 +784,22 @@ public class Application {
 		PreparedStatement ps = null;
 		int result = -1;
 		try {
-			System.out.println(newPost.getPostId());
-			System.out.println(newPost.getPostMessage());
-			System.out.println(newPost.getPostUserId());
-			System.out.println(newPost.getPostTimeStamp());
-			System.out.println(newPost.getPostSongId());
-			System.out.println(newPost.getPostAlbumId());
 			Class.forName(SQL_DRIVER_CLASS);
 			conn = DriverManager.getConnection(DATABASE_CONNECTION_URL);
-			System.out.println("3");
-			System.out.println(newPost.getPostUserId());
-			System.out.println("4");
 			ps = conn.prepareStatement(
 					"INSERT INTO Post ("
-							+ "post_timestamp, "
-							+ "user_id, "
-							+ "song_id, "
-							+ "album_id, "
-							+ "post_message) VALUES ('" 
-							+ newPost.getPostTimeStamp().toString() + "', '" 
-							+ newPost.getPostUserId() + "', '" 
-							+ newPost.getPostSongId() + "', '" 
-							+ newPost.getPostAlbumId() + "', '" 
-							+ newPost.getPostMessage() + "');");
+					+ "post_timestamp, "
+					+ "post_type, "
+					+ "user_id, "
+					+ "song_id, "
+					+ "album_id, "
+					+ "post_message) VALUES ('" 
+					+ newPost.getPostTimeStamp().toString() + "', '" 
+					+ newPost.getPostType().toString() + "', '" 
+					+ newPost.getPostUserId() + "', '" 
+					+ newPost.getPostSongId() + "', '" 
+					+ newPost.getPostAlbumId() + "', '" 
+					+ newPost.getPostMessage() + "');");
 			ps.execute();
 
 			ps = conn.prepareStatement("select max(post_id) as postID from Post");
@@ -881,6 +874,7 @@ public class Application {
 				Post tempPost = new Post();
 
 				String tempPostId = rs.getString("post_id");
+				String tempPostType = rs.getString("post_type");
 				String tempPostTimeStamp = rs.getString("post_timestamp");
 				String tempUserId = rs.getString("user_id");
 				String tempPostMessage = rs.getString("post_message");
@@ -889,6 +883,7 @@ public class Application {
 
 
 				tempPost.setPostId(tempPostId);
+				tempPost.setPostType(tempPostType);
 				tempPost.setPostTimeStamp(tempPostTimeStamp);
 				tempPost.setPostUserId(tempUserId);
 				tempPost.setPostMessage(tempPostMessage);
@@ -987,6 +982,7 @@ public class Application {
 					Post tempPost = new Post();
 
 					String tempPostId = rs.getString("post_id");
+					String tempPostType = rs.getString("post_type");
 					String tempPostTimeStamp = rs.getString("post_timestamp");
 					String tempUserId = rs.getString("user_id");
 					String tempPostMessage = rs.getString("post_message");
@@ -995,6 +991,7 @@ public class Application {
 
 
 					tempPost.setPostId(tempPostId);
+					tempPost.setPostType(tempPostType);
 					tempPost.setPostTimeStamp(tempPostTimeStamp);
 					tempPost.setPostUserId(tempUserId);
 					tempPost.setPostMessage(tempPostMessage);
@@ -1226,6 +1223,7 @@ public class Application {
 					"SELECT * from Post WHERE post_id= '" + post_id + "';");
 			rs = ps.executeQuery();
 			String tempPostId = rs.getString("post_id");
+			String tempPostType = rs.getString("post_type");
 			String tempPostTimeStamp = rs.getString("post_timestamp");
 			String tempUserId = rs.getString("user_id");
 			String tempPostMessage = rs.getString("post_message");
@@ -1234,6 +1232,7 @@ public class Application {
 
 
 			ret.setPostId(tempPostId);
+			ret.setPostType(tempPostType);
 			ret.setPostTimeStamp(tempPostTimeStamp);
 			ret.setPostUserId(tempUserId);
 			ret.setPostMessage(tempPostMessage);

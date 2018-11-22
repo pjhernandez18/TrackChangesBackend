@@ -282,14 +282,30 @@ public class WebSocketEndpoint {
 				handleSuccess = app.unlikeSong(song_id, user_id);
 
 			} else if(request.equals("add_post")) {
-
+				
+				String post_user_id = (String)json.get("post_user_id");
+				String post_type = (String)json.get("post_type");
+				String post_message = (String)json.get("post_message");
+				String post_timestamp = (String)json.get("post_timestamp");
+				String post_song_id = (String)json.get("post_song_id");
+				String post_album_id = (String)json.get("post_album_id");
+				
+				// Debugging output
+				System.out.println("Add Post Parameters Received: ");
+				System.out.println("\t" + post_user_id);
+				System.out.println("\t" + post_type);
+				System.out.println("\t" + post_message);
+				System.out.println("\t" + post_timestamp);
+				System.out.println("\t" + post_song_id);
+				System.out.println("\t" + post_album_id);
+				
 				Post newPost = new Post();
-				newPost.setPostMessage((String)json.get("post_message"));
-				newPost.setPostMessage((String)json.get("post_type"));
-				newPost.setPostSongId((String)json.get("post_song_id"));
-				newPost.setPostUserId((String)json.get("post_user_id"));
-				newPost.setPostAlbumId((String)json.get("post_album_id"));
-				newPost.setPostTimeStamp((String)json.get("post_timestamp"));
+				newPost.setPostUserId(post_user_id);
+				newPost.setPostType(post_type);
+				newPost.setPostMessage(post_message);
+				newPost.setPostTimeStamp(post_timestamp);
+				newPost.setPostSongId(post_song_id);
+				newPost.setPostAlbumId(post_album_id);
 				int post_id = app.addPost(newPost);
 				
 				Post post = app.getPost(post_id);

@@ -309,6 +309,10 @@ public class WebSocketEndpoint {
 				System.out.println(prettyJsonString);
 				
 				sendToSession(this.clientSession, response.toString().getBytes());
+				
+				// Notify all of the user's followers that a new post has been added
+				updateFeeds(app.getFollowers((String)json.get("post_user_id")), response.toString().getBytes());
+				
 				handleSuccess = true;
 
 			} else if(request.equals("get_posts")) {

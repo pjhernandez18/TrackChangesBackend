@@ -146,6 +146,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
 @ServerEndpoint (value="/endpoint")
 public class WebSocketEndpoint {
 
@@ -188,7 +193,12 @@ public class WebSocketEndpoint {
 			try {
 				JSONObject json = (JSONObject) parser.parse(parsedJson);
 				String request = (String) json.get("request");
-				System.out.println("Decoded Json: " + request);
+				System.out.println("");
+				for(int i = 0; i < 50; i++) {
+					System.out.print("-");
+				}
+				System.out.println("");
+				System.out.println("Request: " + request);
 
 				// Sends request and body to handler to call Application.java functions
 				parseSuccess = sessions.get(session.getId()).handleRequest(request, json);
@@ -236,6 +246,10 @@ public class WebSocketEndpoint {
 		 */
 		@SuppressWarnings("unchecked")
 		public boolean handleRequest(String request, JSONObject json) {
+			
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			JsonParser jp = new JsonParser();
+			
 			Application app = new Application();
 			boolean handleSuccess = false;
 			if(request.equals("add_user")) {
@@ -254,25 +268,56 @@ public class WebSocketEndpoint {
 				newUser.setUserLoginTimeStamp((String)json.get("user_logintimestamp"));
 				handleSuccess = app.addUser(newUser);
 
-			} else if(request.equals("follow")) {
-
+			} else if(request.equals("is_following")) {
+				
 				String user_id = (String)json.get("user_id");
 				String follower_id = (String)json.get("follower_id");
+				
+				// debugging
+				System.out.println("user_id: " + user_id);
+				System.out.println("follower_id: " + follower_id);
+				
+				handleSuccess = app.isFollowing(user_id, follower_id);
+				JSONObject response = new JSONObject();
+				
+				// check this jeff
+				response.put("response", "is_following");
+				response.put("is_following", handleSuccess);
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
+				sendToSession(this.clientSession, response.toString().getBytes());
+
+			}else if(request.equals("follow")) {
+				
+				String user_id = (String)json.get("user_id");
+				String follower_id = (String)json.get("follower_id");
+				System.out.println("user_id: " + user_id);
+				System.out.println("follower_id: " + follower_id);
 				handleSuccess = app.follow(user_id, follower_id);
 
 			} else if(request.equals("unfollow")) {
-
+				
 				String user_id = (String)json.get("user_id");
 				String follower_id = (String)json.get("follower_id");
+				System.out.println("user_id: " + user_id);
+				System.out.println("follower_id: " + follower_id);
 				handleSuccess = app.unfollow(user_id, follower_id);
 
 			} else if(request.equals("get_followers")) {
 				
-				System.out.println((String)json.get("user_id"));
 				String user_id = (String)json.get("user_id");
 				ArrayList<User> followers = app.getFollowers(user_id);
-				for(User follower : followers) {
-					System.out.println(follower.getUserId());
+				System.out.println("List of Followers for " + user_id + ": ");
+				if(followers != null) {
+					for(User follower : followers) {
+						System.out.println("\t" + follower.getUserId());
+					}
+				} else {
+					System.out.println("\t None");
 				}
 				JSONArray jsonFollowersArray = new JSONArray();
 				for(User follower : followers) {
@@ -286,6 +331,12 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "followers");
 				response.put("followers", jsonFollowersArray);
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -293,8 +344,13 @@ public class WebSocketEndpoint {
 
 				String user_id = (String)json.get("user_id");
 				ArrayList<User> followings = app.getFollowings(user_id);
-				for(User following : followings) {
-					System.out.println(following.getUserId());
+				System.out.println("List of Followings for " + user_id + ": ");
+				if(followings != null) {
+					for(User following : followings) {
+						System.out.println("\t" + following.getUserId());
+					}
+				} else {
+					System.out.println("\t None");
 				}
 				JSONArray jsonFollowingsArray = new JSONArray();
 				for(User following : followings) {
@@ -308,6 +364,12 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "followings");
 				response.put("followings", jsonFollowingsArray);
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -344,29 +406,55 @@ public class WebSocketEndpoint {
 				handleSuccess = app.unlikeSong(song_id, user_id);
 
 			} else if(request.equals("add_post")) {
-
+				
+				String post_user_id = (String)json.get("post_user_id");
+				String post_type = (String)json.get("post_type");
+				String post_message = (String)json.get("post_message");
+				String post_timestamp = (String)json.get("post_timestamp");
+				String post_song_id = (String)json.get("post_song_id");
+				String post_album_id = (String)json.get("post_album_id");
+				
+				// Debugging output
+				System.out.println("Add Post Parameters Received: ");
+				System.out.println("\t" + post_user_id);
+				System.out.println("\t" + post_type);
+				System.out.println("\t" + post_message);
+				System.out.println("\t" + post_timestamp);
+				System.out.println("\t" + post_song_id);
+				System.out.println("\t" + post_album_id);
+				
 				Post newPost = new Post();
-				newPost.setPostTimeStamp((String)json.get("post_timestamp"));
-				newPost.setPostUserId((String)json.get("post_user_id"));
-				System.out.println("1");
-				System.out.println((String)json.get("post_user_id"));
-				System.out.println("2");
-				newPost.setPostMessage((String)json.get("post_message"));
-				newPost.setPostSongId((String)json.get("post_song_id"));
-				newPost.setPostAlbumId((String)json.get("post_album_id"));
+				newPost.setPostUserId(post_user_id);
+				newPost.setPostType(post_type);
+				newPost.setPostMessage(post_message);
+				newPost.setPostTimeStamp(post_timestamp);
+				newPost.setPostSongId(post_song_id);
+				newPost.setPostAlbumId(post_album_id);
 				int post_id = app.addPost(newPost);
-				if(handleSuccess) {
-					Post post = app.getPost(post_id);
-					JSONObject response = new JSONObject();
-					response.put("response", "post_added");
-					response.put("post_id", post.getPostId());
-					response.put("post_timestamp", post.getPostTimeStamp());
-					response.put("user_id", post.getPostUserId());
-					response.put("post_message", post.getPostMessage());
-					response.put("song_id", post.getPostSongId());
-					response.put("album_id", post.getPostAlbumId());
-					sendToSession(this.clientSession, response.toString().getBytes());
-				}
+				
+				System.out.println("Post_id: " + post_id);
+				
+				Post post = app.getPost(post_id);
+				JSONObject response = new JSONObject();
+				response.put("response", "post_added");
+				response.put("post_id", post.getPostId());
+				response.put("post_type", post.getPostType());
+				response.put("post_timestamp", post.getPostTimeStamp());
+				response.put("post_user_id", post.getPostUserId());
+				response.put("post_message", post.getPostMessage());
+				response.put("post_song_id", post.getPostSongId());
+				response.put("post_album_id", post.getPostAlbumId());
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
+				sendToSession(this.clientSession, response.toString().getBytes());
+				
+				// Notify all of the user's followers that a new post has been added
+				updateFeeds(app.getFollowers((String)json.get("post_user_id")), response);
+				
 				handleSuccess = true;
 
 			} else if(request.equals("get_posts")) {
@@ -378,17 +466,24 @@ public class WebSocketEndpoint {
 				for(Post post : posts) {
 					JSONObject jsonPost = new JSONObject();
 					jsonPost.put("post_id", post.getPostId());
+					jsonPost.put("post_type", post.getPostType());
 					jsonPost.put("post_timestamp", post.getPostTimeStamp());
-					jsonPost.put("user_id", post.getPostUserId());
+					jsonPost.put("post_user_id", post.getPostUserId());
 					jsonPost.put("post_message", post.getPostMessage());
-					jsonPost.put("song_id", post.getPostSongId());
-					jsonPost.put("album_id", post.getPostAlbumId());
+					jsonPost.put("post_song_id", post.getPostSongId());
+					jsonPost.put("post_album_id", post.getPostAlbumId());
 					jsonFeedArray.add(jsonPost);
 				}
 
 				JSONObject response = new JSONObject();
-				response.put("response", "feed");
-				response.put("feed", jsonFeedArray);
+				response.put("response", "posts");
+				response.put("posts", jsonFeedArray);
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -401,17 +496,27 @@ public class WebSocketEndpoint {
 				for(Post post : posts) {
 					JSONObject jsonPost = new JSONObject();
 					jsonPost.put("post_id", post.getPostId());
+					jsonPost.put("post_type", post.getPostType());
 					jsonPost.put("post_timestamp", post.getPostTimeStamp());
-					jsonPost.put("user_id", post.getPostUserId());
+					jsonPost.put("post_user_id", post.getPostUserId());
+					jsonPost.put("post_user_displayname", post.getPostUserDisplayname());
+					jsonPost.put("post_user_imageurl", post.getPostUserImageurl());
+					jsonPost.put("post_user_logintimestamp", post.getPostUserLogintimestamp());
 					jsonPost.put("post_message", post.getPostMessage());
-					jsonPost.put("song_id", post.getPostSongId());
-					jsonPost.put("album_id", post.getPostAlbumId());
+					jsonPost.put("post_song_id", post.getPostSongId());
+					jsonPost.put("post_album_id", post.getPostAlbumId());
 					jsonFeedArray.add(jsonPost);
 				}
 
 				JSONObject response = new JSONObject();
 				response.put("response", "feed");
 				response.put("feed", jsonFeedArray);
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -438,21 +543,29 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "post_added");
 				response.put("post_id", post.getPostId());
+				response.put("post_type", post.getPostType());
 				response.put("post_timestamp", post.getPostTimeStamp());
-				response.put("user_id", post.getPostUserId());
+				response.put("post_user_id", post.getPostUserId());
 				response.put("post_message", post.getPostMessage());
-				response.put("song_id", post.getPostSongId());
-				response.put("album_id", post.getPostAlbumId());
-				updateFeeds(app.getFollowers(user_id), response.toString().getBytes());
+				response.put("post_song_id", post.getPostSongId());
+				response.put("post_album_id", post.getPostAlbumId());
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
+				updateFeeds(app.getFollowers(user_id), response);
 
 			} else if(request.equals("delete_post")) {
 
 				String post_id = (String)json.get("post_id");
 				handleSuccess = app.deletePost(post_id);
 
-			}else if(request.equals("search_users")) {
+			} else if(request.equals("search_users")) {
 
 				String search_input = (String)json.get("search_term");
+				System.out.println("Search Term: " + search_input);
 				ArrayList<User> searchResults = app.search(search_input);
 				JSONArray jsonSearchResults = new JSONArray();
 				for(User user : searchResults) {
@@ -466,6 +579,12 @@ public class WebSocketEndpoint {
 				JSONObject response = new JSONObject();
 				response.put("response", "search_results");
 				response.put("search_results", jsonSearchResults);
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
 				sendToSession(this.clientSession, response.toString().getBytes());
 				handleSuccess = true;
 
@@ -489,16 +608,31 @@ public class WebSocketEndpoint {
 
 		}
 
-		private void updateFeeds(ArrayList<User> followers, byte[] data) {
+		private void updateFeeds(ArrayList<User> followers, JSONObject response) {
+			
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			JsonParser jp = new JsonParser();
+			
+			// Debug output
+			JsonElement je = jp.parse(response.toJSONString());
+			String prettyJsonString = gson.toJson(je);
 
 			synchronized(sessions) {
 
 				for(User follower : followers) {
 
 					if(clientSessionId.get(follower.getUserId()) != null) {
+						
+						System.out.println("Response sent to " + follower.getUserId() + ": ");
+						
+						System.out.println(prettyJsonString);
 
-						sendToSession(sessions.get(clientSessionId.get(follower.getUserId())).clientSession, data);
+						sendToSession(sessions.get(clientSessionId.get(follower.getUserId())).clientSession, response.toString().getBytes());
 
+					} else {
+						
+						System.out.println(follower.getUserDisplayName() + " is not online.");
+						
 					}
 
 				}

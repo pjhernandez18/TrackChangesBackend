@@ -468,6 +468,35 @@ public class WebSocketEndpoint {
 				handleSuccess = true;
 
 			}
+			else if(request.equals("get_all_posts")) {
+				
+				ArrayList<Post> posts = new ArrayList<Post>();
+				posts = app.getAllPosts();
+				JSONArray jsonFeedArray = new JSONArray();
+				for(Post post : posts) {
+					JSONObject jsonPost = new JSONObject();
+					jsonPost.put("post_id", post.getPostId());
+					jsonPost.put("post_type", post.getPostType());
+					jsonPost.put("post_timestamp", post.getPostTimeStamp());
+					jsonPost.put("post_user_id", post.getPostUserId());
+					jsonPost.put("post_message", post.getPostMessage());
+					jsonPost.put("post_song_id", post.getPostSongId());
+					jsonPost.put("post_album_id", post.getPostAlbumId());
+					jsonFeedArray.add(jsonPost);
+				}
+
+				JSONObject response = new JSONObject();
+				response.put("response", "posts");
+				response.put("posts", jsonFeedArray);
+				
+				// Debug output
+				JsonElement je = jp.parse(response.toJSONString());
+				String prettyJsonString = gson.toJson(je);
+				System.out.println(prettyJsonString);
+				
+				sendToSession(this.clientSession, response.toString().getBytes());
+				handleSuccess = true;
+			}
 			
 			return handleSuccess;
 		}

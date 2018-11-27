@@ -58,6 +58,8 @@ CREATE TABLE Post (
 	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
+ALTER TABLE Post AUTO_INCREMENT = 10;
+
 /* Stores the number of shares of each post */
 CREATE TABLE PostShare (
 	post_id INT(11) NOT NULL,

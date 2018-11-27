@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.websocket.OnClose;
@@ -16,6 +17,7 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.tomcat.jni.Lock;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -34,16 +36,20 @@ public class WebSocketEndpoint {
 	private static Map<String, String> clientSessionId = Collections.synchronizedMap(new HashMap<String, String>());
 	private static final Logger log = Logger.getLogger("TrackChanges");
 	private static final JSONParser parser = new JSONParser(); 
+	private static ReentrantLock lock = new ReentrantLock();
 
 	@OnOpen
 	public void onOpen(Session session) {
+		lock.lock();
 		sessions.put(session.getId(), new WorkerThread(session));
 		System.out.println("onOpen:: " + session.getId());        
 		log.info("Connection openend by id: " + session.getId());
+		lock.unlock();
 	}
 
 	@OnClose
 	public void close(Session session) {
+		lock.lock();
 		synchronized(sessions) {
 			sessions.remove(session.getId());
 			synchronized(clientSessionId) {
@@ -56,10 +62,13 @@ public class WebSocketEndpoint {
 		}
 		System.out.println("onClose:: " + session.getId());	
 		log.info("Connection closed by id: " + session.getId());
+		lock.unlock();
 	}
 
 	@OnMessage
 	public void onMessage (byte[] b, Session session) {
+		
+		lock.lock();
 
 		if(sessions.get(session.getId()) != null) {
 			boolean parseSuccess = false;
@@ -94,12 +103,19 @@ public class WebSocketEndpoint {
 
 			}
 		}
+		
+		lock.unlock();
 
 	}
 
 	@OnError
 	public void onError(Throwable e) {
+		
+		lock.lock();
+		
 		System.out.println("onError::" + e.getMessage());
+		
+		lock.unlock();
 
 	}
 
@@ -317,6 +333,9 @@ public class WebSocketEndpoint {
 				response.put("post_type", post.getPostType());
 				response.put("post_timestamp", post.getPostTimeStamp());
 				response.put("post_user_id", post.getPostUserId());
+				response.put("post_user_displayname", app.getUserDisplayName(post.getPostUserId()));
+				response.put("post_user_imageurl", app.getUserImg(post.getPostUserId()));
+
 				response.put("post_message", post.getPostMessage());
 				response.put("post_song_id", post.getPostSongId());
 				response.put("post_album_id", post.getPostAlbumId());
@@ -473,6 +492,8 @@ public class WebSocketEndpoint {
 		 * Function that sends data in byte array to the specified Client Session
 		 */
 		private void sendToSession(Session session, byte[] data) {
+			
+			lock.lock();
 
 			try {
 				ByteBuffer tobeSent = ByteBuffer.wrap(data);
@@ -481,10 +502,16 @@ public class WebSocketEndpoint {
 			} catch(IOException ioe) {
 				System.out.println("ioe: " + ioe.getMessage());
 			}
+			
+			lock.unlock();
 
 		}
-
+		/*
+		 * Function updates the feeds of the user's followers.
+		 */
 		private void updateFeeds(ArrayList<User> followers, JSONObject response) {
+			
+			lock.lock();
 			
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			JsonParser jp = new JsonParser();
@@ -514,6 +541,8 @@ public class WebSocketEndpoint {
 				}
 
 			}
+			
+			lock.unlock();
 
 		}
 

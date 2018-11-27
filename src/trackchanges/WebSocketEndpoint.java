@@ -40,16 +40,16 @@ public class WebSocketEndpoint {
 
 	@OnOpen
 	public void onOpen(Session session) {
-		lock.lock();
+//		lock.lock();
 		sessions.put(session.getId(), new WorkerThread(session));
 		System.out.println("onOpen:: " + session.getId());        
 		log.info("Connection openend by id: " + session.getId());
-		lock.unlock();
+//		lock.unlock();
 	}
 
 	@OnClose
 	public void close(Session session) {
-		lock.lock();
+//		lock.lock();
 		synchronized(sessions) {
 			sessions.remove(session.getId());
 			synchronized(clientSessionId) {
@@ -62,13 +62,13 @@ public class WebSocketEndpoint {
 		}
 		System.out.println("onClose:: " + session.getId());	
 		log.info("Connection closed by id: " + session.getId());
-		lock.unlock();
+//		lock.unlock();
 	}
 
 	@OnMessage
 	public void onMessage (byte[] b, Session session) {
 		
-		lock.lock();
+//		lock.lock();
 
 		if(sessions.get(session.getId()) != null) {
 			boolean parseSuccess = false;
@@ -102,20 +102,24 @@ public class WebSocketEndpoint {
 				}
 
 			}
+		} else {
+			
+			System.out.println("WTF");
+			
 		}
 		
-		lock.unlock();
+//		lock.unlock();
 
 	}
 
 	@OnError
 	public void onError(Throwable e) {
 		
-		lock.lock();
+//		lock.lock();
 		
 		System.out.println("onError::" + e.getMessage());
 		
-		lock.unlock();
+//		lock.unlock();
 
 	}
 
@@ -542,7 +546,7 @@ public class WebSocketEndpoint {
 		 */
 		private void updateFeeds(ArrayList<User> followers, JSONObject response) {
 			
-			lock.lock();
+//			lock.lock();
 			
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			JsonParser jp = new JsonParser();
@@ -573,7 +577,7 @@ public class WebSocketEndpoint {
 
 			}
 			
-			lock.unlock();
+//			lock.unlock();
 
 		}
 
